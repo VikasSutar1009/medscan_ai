@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedScan AI — Medical Intelligence Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════
+   RESET & ROOT VARIABLES
+═══════════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --teal:#0F6E56;--teal-mid:#1D9E75;--teal-light:#E1F5EE;--teal-dark:#085041;
+  --blue:#185FA5;--blue-light:#E6F1FB;
+  --amber:#BA7517;--amber-light:#FAEEDA;
+  --red:#A32D2D;--red-light:#FCEBEB;
+  --green:#3B6D11;--green-light:#EAF3DE;
+  --gray-50:#F8F7F4;--gray-100:#EFEFEB;--gray-200:#D3D1C7;
+  --gray-500:#888780;--gray-700:#444441;--gray-900:#1a1a18;
+  --surface:#ffffff;--bg:#F5F4F0;
+  --border:rgba(0,0,0,0.10);--border-md:rgba(0,0,0,0.16);
+  --text:#1a1a18;--muted:#5F5E5A;--hint:#B4B2A9;
+  --r-sm:6px;--r-md:8px;--r-lg:12px;--r-xl:16px;
+  --shadow-sm:0 1px 4px rgba(0,0,0,0.07);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg:0 12px 40px rgba(0,0,0,0.15);
+}
+
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+
+/* ═══════════════════════════════════════════════
+   SCREEN SYSTEM
+═══════════════════════════════════════════════ */
+.screen{display:none}
+.screen.active{display:flex}
+#s-app{flex-direction:column;min-height:100vh}
+
+/* ═══════════════════════════════════════════════
+   LOGIN SCREEN
+═══════════════════════════════════════════════ */
+#s-login{min-height:100vh;align-items:stretch}
+.login-left{
+  width:440px;flex-shrink:0;background:var(--teal-dark);
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:3rem;position:relative;overflow:hidden;
+}
+.login-left::before{
+  content:'';position:absolute;inset:0;
+  background:repeating-linear-gradient(45deg,rgba(255,255,255,0.025) 0,rgba(255,255,255,0.025) 1px,transparent 1px,transparent 44px);
+}
+.login-left::after{
+  content:'';position:absolute;bottom:-80px;right:-80px;
+  width:320px;height:320px;border-radius:50%;
+  background:rgba(255,255,255,0.04);
+}
+.ll-brand{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
+.ll-brand-icon{width:42px;height:42px;border-radius:10px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center}
+.ll-brand-icon svg{width:22px;height:22px;fill:white}
+.ll-brand-text{font-size:17px;font-weight:500;color:white;letter-spacing:-0.3px}
+.ll-brand-sub{font-size:11px;color:rgba(255,255,255,0.45);margin-top:1px}
+.ll-hero{position:relative;z-index:1}
+.ll-hero h1{font-family:'Instrument Serif',serif;font-size:38px;line-height:1.15;color:white;font-weight:400;margin-bottom:14px}
+.ll-hero p{font-size:13px;color:rgba(255,255,255,0.55);line-height:1.8}
+.ll-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.ll-badge{background:rgba(255,255,255,0.10);border:0.5px solid rgba(255,255,255,0.20);color:rgba(255,255,255,0.75);font-size:11px;padding:4px 11px;border-radius:20px}
+.ll-footer{font-size:11px;color:rgba(255,255,255,0.25);position:relative;z-index:1}
+.login-right{flex:1;display:flex;align-items:center;justify-content:center;padding:2.5rem;background:var(--bg)}
+.login-box{width:100%;max-width:400px}
+.login-box h2{font-size:23px;font-weight:500;letter-spacing:-0.5px;margin-bottom:5px}
+.login-box > p{font-size:13px;color:var(--muted);margin-bottom:1.75rem}
+.role-tabs{display:flex;gap:5px;margin-bottom:1.5rem;background:var(--gray-100);border-radius:var(--r-md);padding:4px}
+.rtab{flex:1;text-align:center;padding:8px;font-size:12px;font-weight:500;border-radius:6px;cursor:pointer;color:var(--muted);transition:all 0.2s;border:none;background:none;font-family:'DM Sans',sans-serif}
+.rtab.active{background:var(--surface);color:var(--teal);box-shadow:var(--shadow-sm)}
+.divider{text-align:center;font-size:12px;color:var(--hint);margin:1.25rem 0;position:relative}
+.divider::before{content:'';position:absolute;top:50%;left:0;right:0;height:0.5px;background:var(--border)}
+.divider span{background:var(--bg);padding:0 10px;position:relative}
+
+/* ═══════════════════════════════════════════════
+   FORMS — SHARED
+═══════════════════════════════════════════════ */
+.fg{margin-bottom:12px}
+.fg label,.form-label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:5px;letter-spacing:0.1px}
+input[type=text],input[type=email],input[type=password],input[type=tel],input[type=date],input[type=number],select,textarea{
+  font-family:'DM Sans',sans-serif;font-size:13px;
+  padding:9px 12px;border:0.5px solid var(--border-md);
+  border-radius:var(--r-md);background:var(--surface);
+  color:var(--text);width:100%;outline:none;transition:border-color 0.15s,box-shadow 0.15s;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--teal-mid);box-shadow:0 0 0 3px rgba(29,158,117,0.12)}
+textarea{resize:vertical;min-height:80px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fgrid .full{grid-column:1/-1}
+.form-section-label{
+  font-size:10px;font-weight:500;letter-spacing:0.8px;
+  text-transform:uppercase;color:var(--hint);
+  padding-bottom:8px;border-bottom:0.5px solid var(--border);
+  margin:1.25rem 0 12px;
+}
+.form-section-label:first-child{margin-top:0}
+.form-footer{display:flex;justify-content:flex-end;gap:8px;margin-top:1.5rem;padding-top:1rem;border-top:0.5px solid var(--border)}
+
+/* ═══════════════════════════════════════════════
+   BUTTONS
+═══════════════════════════════════════════════ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:9px 18px;border-radius:var(--r-md);font-size:13px;font-weight:500;
+  cursor:pointer;border:0.5px solid var(--border-md);
+  background:var(--surface);color:var(--text);
+  font-family:'DM Sans',sans-serif;transition:all 0.15s;
+  text-decoration:none;white-space:nowrap;
+}
+.btn:hover{background:var(--gray-100)}
+.btn-primary{background:var(--teal);color:white;border-color:var(--teal)}
+.btn-primary:hover{background:var(--teal-dark)}
+.btn-danger{background:var(--red-light);color:var(--red);border-color:var(--red-light)}
+.btn-danger:hover{background:#F7C1C1}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-xs{padding:4px 9px;font-size:11px}
+.btn-block{width:100%;justify-content:center}
+
+/* ═══════════════════════════════════════════════
+   ALERTS
+═══════════════════════════════════════════════ */
+.alert{padding:10px 14px;border-radius:var(--r-md);font-size:13px;margin-bottom:1rem}
+.alert-err{background:var(--red-light);color:var(--red);border:0.5px solid #F7C1C1;display:none}
+.alert-ok{background:var(--green-light);color:var(--green);border:0.5px solid #C0DD97;display:none}
+
+/* ═══════════════════════════════════════════════
+   TOP BAR
+═══════════════════════════════════════════════ */
+.topbar{
+  background:var(--surface);border-bottom:0.5px solid var(--border);
+  padding:0 1.5rem;display:flex;align-items:center;
+  justify-content:space-between;height:54px;
+  position:sticky;top:0;z-index:200;flex-shrink:0;
+}
+.tb-brand{display:flex;align-items:center;gap:9px}
+.tb-icon{width:28px;height:28px;background:var(--teal);border-radius:7px;display:flex;align-items:center;justify-content:center}
+.tb-icon svg{width:14px;height:14px;fill:white}
+.tb-name{font-size:14px;font-weight:500;letter-spacing:-0.2px}
+.tb-right{display:flex;align-items:center;gap:10px}
+.pill{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500}
+.pill-green{background:var(--green-light);color:var(--green)}
+.pill-red{background:var(--red-light);color:var(--red)}
+.pill-amber{background:var(--amber-light);color:var(--amber)}
+.pill-blue{background:var(--blue-light);color:var(--blue)}
+.pill-teal{background:var(--teal-light);color:var(--teal)}
+.pill-gray{background:var(--gray-100);color:var(--muted)}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--teal-light);color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;cursor:pointer;flex-shrink:0}
+
+/* ═══════════════════════════════════════════════
+   APP BODY — SIDEBAR + MAIN
+═══════════════════════════════════════════════ */
+.app-body{display:flex;flex:1;min-height:0}
+.sidebar{
+  width:216px;flex-shrink:0;background:var(--surface);
+  border-right:0.5px solid var(--border);padding:1rem 0;
+  overflow-y:auto;height:calc(100vh - 54px);
+  position:sticky;top:54px;
+}
+.nav-section{font-size:10px;font-weight:500;color:var(--hint);letter-spacing:0.8px;padding:0 1.25rem;margin:1rem 0 5px;text-transform:uppercase}
+.nav-section:first-child{margin-top:0}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 1.25rem;font-size:13px;cursor:pointer;color:var(--muted);transition:all 0.15s;border-left:2px solid transparent}
+.nav-item:hover{background:var(--gray-50);color:var(--text)}
+.nav-item.active{background:var(--teal-light);color:var(--teal);border-left-color:var(--teal);font-weight:500}
+.nav-icon{font-size:14px;width:18px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;font-size:10px;background:var(--red-light);color:var(--red);padding:1px 6px;border-radius:10px}
+.nav-badge-g{margin-left:auto;font-size:10px;background:var(--gray-100);color:var(--hint);padding:1px 6px;border-radius:10px}
+
+.main{flex:1;overflow-y:auto;padding:1.75rem;background:var(--bg)}
+.page{display:none}
+.page.active{display:block;animation:fadeIn 0.18s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════════ */
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--r-lg);padding:1.25rem;margin-bottom:1rem}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem}
+.card-title{font-size:10px;font-weight:500;letter-spacing:0.7px;text-transform:uppercase;color:var(--hint)}
+.page-head{margin-bottom:1.5rem}
+.page-head h1{font-size:20px;font-weight:500;letter-spacing:-0.4px}
+.page-head p{font-size:12px;color:var(--muted);margin-top:3px}
+
+/* ═══════════════════════════════════════════════
+   METRICS
+═══════════════════════════════════════════════ */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.25rem}
+.metric{background:var(--gray-100);border-radius:var(--r-md);padding:1rem}
+.metric-label{font-size:11px;color:var(--muted);margin-bottom:6px}
+.metric-val{font-size:26px;font-weight:500;letter-spacing:-1px;line-height:1}
+.metric-sub{font-size:11px;margin-top:6px;color:var(--muted)}
+.metric-sub.up{color:var(--green)}
+.metric-sub.dn{color:var(--red)}
+
+/* ═══════════════════════════════════════════════
+   TABLE
+═══════════════════════════════════════════════ */
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th{text-align:left;font-size:11px;font-weight:500;color:var(--muted);padding:7px 10px;background:var(--gray-50);border-bottom:0.5px solid var(--border);white-space:nowrap}
+.tbl td{padding:10px;border-bottom:0.5px solid var(--border);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:var(--gray-50)}
+
+/* ═══════════════════════════════════════════════
+   STATUS PILLS
+═══════════════════════════════════════════════ */
+.sp{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500;white-space:nowrap;display:inline-block}
+.sp-ok{background:var(--green-light);color:var(--green)}
+.sp-warn{background:var(--amber-light);color:var(--amber)}
+.sp-crit{background:var(--red-light);color:var(--red)}
+.sp-pend{background:var(--gray-100);color:var(--muted)}
+.sp-blue{background:var(--blue-light);color:var(--blue)}
+.sp-teal{background:var(--teal-light);color:var(--teal)}
+
+/* ═══════════════════════════════════════════════
+   GRID LAYOUTS
+═══════════════════════════════════════════════ */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+.g32{display:grid;grid-template-columns:2fr 1fr;gap:1rem}
+.g23{display:grid;grid-template-columns:1fr 2fr;gap:1rem}
+
+/* ═══════════════════════════════════════════════
+   AI PANEL
+═══════════════════════════════════════════════ */
+.ai-panel{background:var(--teal-light);border-radius:var(--r-md);padding:1.25rem;margin-bottom:1rem}
+.ai-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.ai-orb{width:22px;height:22px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-orb svg{width:11px;height:11px;fill:white}
+.ai-lbl{font-size:12px;font-weight:500;color:var(--teal-dark)}
+.ai-body{font-size:13px;color:var(--teal);line-height:1.7}
+
+/* ═══════════════════════════════════════════════
+   BAR CHARTS
+═══════════════════════════════════════════════ */
+.bar-chart{display:flex;flex-direction:column;gap:10px}
+.bc-row{display:flex;align-items:center;gap:10px;font-size:12px}
+.bc-label{width:90px;color:var(--muted);text-align:right;flex-shrink:0;font-size:11px}
+.bc-track{flex:1;height:7px;background:var(--gray-100);border-radius:4px;overflow:hidden}
+.bc-fill{height:100%;border-radius:4px;transition:width 0.6s ease}
+.bc-val{width:36px;font-size:11px;font-weight:500;color:var(--muted)}
+
+/* ═══════════════════════════════════════════════
+   REPORT LIST PANEL
+═══════════════════════════════════════════════ */
+.rlist-item{padding:11px 1rem;border-bottom:0.5px solid var(--border);cursor:pointer;transition:background 0.1s}
+.rlist-item:hover{background:var(--gray-50)}
+.rlist-item.sel{background:var(--teal-light);border-left:2px solid var(--teal)}
+.rlist-item .rname{font-size:13px;font-weight:500;margin-bottom:2px}
+.rlist-item .rmeta{font-size:11px;color:var(--muted)}
+
+/* ═══════════════════════════════════════════════
+   PRESCRIPTION
+═══════════════════════════════════════════════ */
+.rx-item{display:flex;align-items:flex-start;gap:10px;padding:11px 0;border-bottom:0.5px solid var(--border)}
+.rx-item:last-child{border-bottom:none}
+.rx-num{width:26px;height:26px;border-radius:50%;background:var(--teal-light);color:var(--teal);font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.rx-info{flex:1}
+.rx-name{font-size:13px;font-weight:500}
+.rx-detail{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* ═══════════════════════════════════════════════
+   BILLING
+═══════════════════════════════════════════════ */
+.bill-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:13px}
+.bill-row:last-child{border-bottom:none}
+.bill-total{display:flex;justify-content:space-between;align-items:center;padding:12px 0 0;font-size:15px;font-weight:500;border-top:1px solid var(--border);margin-top:4px}
+
+/* ═══════════════════════════════════════════════
+   UPLOAD ZONE
+═══════════════════════════════════════════════ */
+.upload-zone{
+  border:1.5px dashed var(--border-md);border-radius:var(--r-lg);
+  padding:2.5rem;text-align:center;cursor:pointer;
+  background:var(--gray-50);transition:all 0.2s;
+}
+.upload-zone:hover{border-color:var(--teal-mid);background:var(--teal-light)}
+.upload-zone .uz-icon{font-size:32px;margin-bottom:10px}
+.upload-zone .uz-text{font-size:13px;font-weight:500}
+.upload-zone .uz-sub{font-size:11px;color:var(--muted);margin-top:5px}
+
+/* ═══════════════════════════════════════════════
+   STEP BAR (Registration)
+═══════════════════════════════════════════════ */
+.step-bar{display:flex;align-items:center;gap:0;margin-bottom:1.75rem}
+.step{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+.step.done{color:var(--teal)}
+.step.current{color:var(--teal);font-weight:500}
+.step-circle{width:24px;height:24px;border-radius:50%;border:1.5px solid var(--border-md);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;background:var(--surface);transition:all 0.2s;flex-shrink:0}
+.step.done .step-circle{background:var(--teal);border-color:var(--teal);color:white}
+.step.current .step-circle{border-color:var(--teal);color:var(--teal)}
+.step-line{flex:1;height:1px;background:var(--border);margin:0 8px;transition:background 0.2s}
+.step-line.done{background:var(--teal)}
+
+/* ═══════════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════════ */
+.modal-overlay{
+  display:none;position:fixed;inset:0;
+  background:rgba(0,0,0,0.45);z-index:999;
+  align-items:center;justify-content:center;
+  backdrop-filter:blur(2px);
+}
+.modal-overlay.active{display:flex}
+.modal-box{
+  background:var(--surface);border-radius:var(--r-xl);
+  width:700px;max-width:95vw;max-height:90vh;
+  overflow-y:auto;box-shadow:var(--shadow-lg);
+}
+.modal-header{
+  padding:1.25rem 1.5rem;border-bottom:0.5px solid var(--border);
+  display:flex;justify-content:space-between;align-items:flex-start;
+  position:sticky;top:0;background:var(--surface);z-index:1;
+}
+.modal-header h2{font-size:17px;font-weight:500;letter-spacing:-0.3px}
+.modal-header p{font-size:12px;color:var(--muted);margin-top:2px}
+.modal-body{padding:1.5rem}
+
+/* ═══════════════════════════════════════════════
+   REPORT VIEWER CHAT
+═══════════════════════════════════════════════ */
+.chat-wrap{padding:1rem 1.25rem;border-top:0.5px solid var(--border)}
+.chat-msgs{max-height:160px;overflow-y:auto;margin-bottom:10px;display:flex;flex-direction:column;gap:8px}
+.cmsg{font-size:13px;padding:9px 12px;border-radius:var(--r-md);max-width:88%;line-height:1.6}
+.cmsg-user{background:var(--gray-100);align-self:flex-end}
+.cmsg-ai{background:var(--teal-light);color:var(--teal);align-self:flex-start}
+.chat-row{display:flex;gap:8px}
+
+/* ═══════════════════════════════════════════════
+   ACTIVITY / TIMELINE
+═══════════════════════════════════════════════ */
+.act-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border)}
+.act-item:last-child{border-bottom:none}
+.act-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.act-text{font-size:13px;color:var(--muted);line-height:1.5}
+.act-time{font-size:11px;color:var(--hint);margin-top:2px}
+
+/* ═══════════════════════════════════════════════
+   MISC
+═══════════════════════════════════════════════ */
+.spinner{width:14px;height:14px;border:2px solid transparent;border-top-color:white;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tag{font-size:11px;background:var(--teal-light);color:var(--teal);padding:2px 9px;border-radius:20px;display:inline-block}
+.section-divider{border:none;border-top:0.5px solid var(--border);margin:1.25rem 0}
+.empty{text-align:center;padding:3rem;color:var(--muted);font-size:13px}
+.scrollable{overflow-y:auto;max-height:480px}
+.med-block{background:var(--gray-50);border-radius:var(--r-md);padding:12px;margin-bottom:10px}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════════
+     SCREEN 1 — LOGIN
+════════════════════════════════════════════════════════════ -->
+<div class="screen active" id="s-login">
+  <div class="login-left">
+    <div class="ll-brand">
+      <div class="ll-brand-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14v-4H7l5-8v4h4l-5 8z"/></svg>
+      </div>
+      <div>
+        <div class="ll-brand-text">MedScan AI</div>
+        <div class="ll-brand-sub">Medical Intelligence Platform</div>
+      </div>
+    </div>
+    <div class="ll-hero">
+      <h1>Smarter diagnosis starts here.</h1>
+      <p>AI-powered medical report analysis, real-time critical flagging, multi-role access, prescriptions, and billing — all in one secure platform.</p>
+      <div class="ll-badges">
+        <span class="ll-badge">🔒 HIPAA Compliant</span>
+        <span class="ll-badge">⚡ 1.4s AI Analysis</span>
+        <span class="ll-badge">96.4% Accuracy</span>
+        <span class="ll-badge">🏥 Multi-role</span>
+      </div>
+    </div>
+    <div class="ll-footer">© 2026 MedScan AI · All rights reserved</div>
+  </div>
+
+  <div class="login-right">
+    <div class="login-box">
+      <h2>Welcome back</h2>
+      <p>Sign in to your account to continue</p>
+      <div class="role-tabs">
+        <button class="rtab active" onclick="setRole(this,'admin')">Admin</button>
+        <button class="rtab" onclick="setRole(this,'doctor')">Doctor</button>
+        <button class="rtab" onclick="setRole(this,'patient')">Patient</button>
+      </div>
+      <div class="alert alert-err" id="login-err">Invalid credentials. Please try again.</div>
+      <div class="fg">
+        <label>Email address</label>
+        <input type="email" id="login-email" placeholder="you@hospital.com" value="admin@medscan.ai">
+      </div>
+      <div class="fg">
+        <label>Password</label>
+        <input type="password" id="login-pwd" placeholder="••••••••" value="••••••••">
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem">
+        <label style="display:flex;align-items:center;gap:7px;cursor:pointer;margin:0">
+          <input type="checkbox" style="width:auto" checked>
+          <span style="font-size:12px;color:var(--muted)">Remember me</span>
+        </label>
+        <button class="btn btn-sm" style="border:none;background:none;color:var(--teal);cursor:pointer;font-size:12px;padding:0">Forgot password?</button>
+      </div>
+      <button class="btn btn-primary btn-block" id="login-btn" onclick="doLogin()">Sign In</button>
+      <div class="divider"><span>or</span></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-block" style="flex:1;font-size:12px" onclick="openModal('patient')">Register as Patient</button>
+        <button class="btn btn-block" style="flex:1;font-size:12px" onclick="openModal('doctor')">Register as Doctor</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     REGISTRATION MODAL
+════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="reg-modal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div>
+        <h2 id="modal-title">Patient Registration</h2>
+        <p>Fill in all details to create your account</p>
+      </div>
+      <button class="btn btn-sm" onclick="closeModal()">✕ Close</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- PATIENT REGISTRATION -->
+      <div id="reg-patient">
+        <div class="step-bar" id="sb">
+          <div class="step done" id="ps1"><div class="step-circle">1</div><span>Personal</span></div>
+          <div class="step-line done" id="pl1"></div>
+          <div class="step current" id="ps2"><div class="step-circle">2</div><span>Medical</span></div>
+          <div class="step-line" id="pl2"></div>
+          <div class="step" id="ps3"><div class="step-circle">3</div><span>Account</span></div>
+        </div>
+
+        <!-- STEP 1 -->
+        <div id="rp-s1">
+          <div class="form-section-label">Personal Information</div>
+          <div class="fgrid">
+            <div class="fg"><label>First Name</label><input type="text" placeholder="Ananya"></div>
+            <div class="fg"><label>Last Name</label><input type="text" placeholder="Shah"></div>
+            <div class="fg"><label>Date of Birth</label><input type="date"></div>
+            <div class="fg"><label>Gender</label><select><option>Select</option><option>Female</option><option>Male</option><option>Other</option></select></div>
+            <div class="fg"><label>Phone</label><input type="tel" placeholder="+91 98765 43210"></div>
+            <div class="fg"><label>Blood Group</label><select><option>Unknown</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select></div>
+            <div class="fg full"><label>Address</label><input type="text" placeholder="Street, City, State, PIN"></div>
+            <div class="fg"><label>Emergency Contact</label><input type="tel" placeholder="+91"></div>
+            <div class="fg"><label>Relationship</label><select><option>Spouse</option><option>Parent</option><option>Sibling</option><option>Child</option><option>Other</option></select></div>
+          </div>
+          <div class="form-footer"><button class="btn btn-primary" onclick="pNext(1)">Next: Medical Details →</button></div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div id="rp-s2" style="display:none">
+          <div class="form-section-label">Medical History</div>
+          <div class="fgrid">
+            <div class="fg full"><label>Known Allergies</label><input type="text" placeholder="e.g. Penicillin, Sulfa drugs (or None)"></div>
+            <div class="fg full"><label>Current Medications</label><textarea placeholder="List any current medications..."></textarea></div>
+            <div class="fg full"><label>Chronic Conditions</label><input type="text" placeholder="e.g. Diabetes Type 2, Hypertension (or None)"></div>
+            <div class="fg"><label>Previous Surgeries</label><input type="text" placeholder="or None"></div>
+            <div class="fg"><label>Family Medical History</label><input type="text" placeholder="e.g. Heart disease, Cancer"></div>
+            <div class="fg"><label>Insurance Provider</label><input type="text" placeholder="Provider name"></div>
+            <div class="fg"><label>Insurance ID / Policy No.</label><input type="text" placeholder="Policy number"></div>
+          </div>
+          <div class="form-footer">
+            <button class="btn" onclick="pPrev(2)">← Back</button>
+            <button class="btn btn-primary" onclick="pNext(2)">Next: Account Setup →</button>
+          </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div id="rp-s3" style="display:none">
+          <div class="form-section-label">Account Credentials</div>
+          <div class="fgrid">
+            <div class="fg full"><label>Email Address</label><input type="email" placeholder="your@email.com"></div>
+            <div class="fg"><label>Password</label><input type="password" placeholder="Min 8 characters"></div>
+            <div class="fg"><label>Confirm Password</label><input type="password" placeholder="Repeat password"></div>
+            <div class="fg"><label>Preferred Language</label><select><option>English</option><option>Hindi</option><option>Marathi</option><option>Tamil</option><option>Telugu</option></select></div>
+            <div class="fg"><label>Notification Preference</label><select><option>Email &amp; SMS</option><option>Email only</option><option>SMS only</option></select></div>
+          </div>
+          <div class="fg" style="margin-top:8px">
+            <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-weight:400;color:var(--muted);font-size:12px">
+              <input type="checkbox" style="width:auto;margin-top:2px">
+              I agree to the Terms of Service and Privacy Policy
+            </label>
+          </div>
+          <div class="alert alert-ok" id="p-reg-ok" style="margin-top:1rem">✅ Account created successfully! You can now sign in.</div>
+          <div class="form-footer">
+            <button class="btn" onclick="pPrev(3)">← Back</button>
+            <button class="btn btn-primary" onclick="submitPatient()">Create Account ✓</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DOCTOR REGISTRATION -->
+      <div id="reg-doctor" style="display:none">
+        <div class="form-section-label">Professional Information</div>
+        <div class="fgrid">
+          <div class="fg"><label>First Name</label><input type="text" placeholder="First Name"></div>
+          <div class="fg"><label>Last Name</label><input type="text" placeholder="Last Name"></div>
+          <div class="fg"><label>Specialization</label><select><option>Cardiology</option><option>Hematology</option><option>Radiology</option><option>General Medicine</option><option>Endocrinology</option><option>Neurology</option><option>Oncology</option><option>Pediatrics</option><option>Nephrology</option></select></div>
+          <div class="fg"><label>Medical License No.</label><input type="text" placeholder="MCI-XXXXXX"></div>
+          <div class="fg"><label>Years of Experience</label><input type="number" placeholder="e.g. 12" min="0"></div>
+          <div class="fg"><label>Department</label><select><option>Cardiology</option><option>Hematology</option><option>Radiology</option><option>ICU</option><option>OPD</option><option>Emergency</option></select></div>
+          <div class="fg"><label>Qualifications</label><input type="text" placeholder="MBBS, MD, DNB..."></div>
+          <div class="fg"><label>Phone</label><input type="tel" placeholder="+91"></div>
+          <div class="fg full"><label>Email Address</label><input type="email" placeholder="doctor@hospital.com"></div>
+          <div class="fg"><label>Password</label><input type="password" placeholder="Min 8 characters"></div>
+          <div class="fg"><label>Confirm Password</label><input type="password" placeholder="Repeat password"></div>
+          <div class="fg full"><label>Professional Bio / Notes</label><textarea placeholder="Brief professional background and specialization notes..."></textarea></div>
+        </div>
+        <div class="fg">
+          <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-weight:400;color:var(--muted);font-size:12px">
+            <input type="checkbox" style="width:auto;margin-top:2px">
+            I confirm my credentials are accurate and agree to the Terms of Service
+          </label>
+        </div>
+        <div class="alert alert-ok" id="d-reg-ok" style="margin-top:1rem">✅ Doctor account submitted for admin approval!</div>
+        <div class="form-footer">
+          <button class="btn" onclick="closeModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="submitDoctor()">Submit for Approval →</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════════
+     SCREEN 2 — MAIN APP
+════════════════════════════════════════════════════════════ -->
+<div class="screen" id="s-app">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="tb-brand">
+      <div class="tb-icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14v-4H7l5-8v4h4l-5 8z"/></svg></div>
+      <span class="tb-name">MedScan AI</span>
+      <span class="pill pill-teal" id="role-badge">Admin</span>
+    </div>
+    <div class="tb-right">
+      <span class="pill pill-red">3 Critical</span>
+      <span class="pill pill-green">System OK</span>
+      <div class="avatar" id="user-avatar" title="Logged in user">AD</div>
+      <button class="btn btn-sm" onclick="logout()">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="app-body">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar"></div>
+
+    <!-- MAIN CONTENT AREA -->
+    <div class="main" id="main-content">
+
+      <!-- ══ ADMIN DASHBOARD ══ -->
+      <div class="page" id="page-admin-dash">
+        <div class="page-head">
+          <h1>Admin Dashboard</h1>
+          <p>Platform overview · April 11, 2026</p>
+        </div>
+        <div class="metrics">
+          <div class="metric"><div class="metric-label">Total Patients</div><div class="metric-val">1,248</div><div class="metric-sub up">+18 this week</div></div>
+          <div class="metric"><div class="metric-label">Active Doctors</div><div class="metric-val">34</div><div class="metric-sub">2 pending approval</div></div>
+          <div class="metric"><div class="metric-label">Reports Today</div><div class="metric-val">87</div><div class="metric-sub up">+12 vs yesterday</div></div>
+          <div class="metric"><div class="metric-label">Revenue (Apr)</div><div class="metric-val">₹4.2L</div><div class="metric-sub up">+8% vs last month</div></div>
+        </div>
+        <div class="g32">
+          <div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">Department Load</span><span class="pill pill-teal">Live</span></div>
+              <div class="bar-chart">
+                <div class="bc-row"><span class="bc-label">Hematology</span><div class="bc-track"><div class="bc-fill" style="width:88%;background:var(--teal)"></div></div><span class="bc-val">24</span></div>
+                <div class="bc-row"><span class="bc-label">Cardiology</span><div class="bc-track"><div class="bc-fill" style="width:70%;background:var(--blue)"></div></div><span class="bc-val">19</span></div>
+                <div class="bc-row"><span class="bc-label">Radiology</span><div class="bc-track"><div class="bc-fill" style="width:55%;background:var(--amber)"></div></div><span class="bc-val">15</span></div>
+                <div class="bc-row"><span class="bc-label">Biochemistry</span><div class="bc-track"><div class="bc-fill" style="width:38%;background:var(--red)"></div></div><span class="bc-val">10</span></div>
+                <div class="bc-row"><span class="bc-label">Endocrinology</span><div class="bc-track"><div class="bc-fill" style="width:22%;background:var(--green)"></div></div><span class="bc-val">6</span></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">Recent Reports</span><button class="btn btn-sm" onclick="goPage('page-reports')">View All</button></div>
+              <table class="tbl">
+                <tr><th>Patient</th><th>Test</th><th>Doctor</th><th>Status</th><th></th></tr>
+                <tr><td><strong>Ananya Shah</strong></td><td>CBC</td><td>Dr. Rahman</td><td><span class="sp sp-crit">Critical</span></td><td><button class="btn btn-xs" onclick="goPage('page-reports')">View</button></td></tr>
+                <tr><td><strong>Pradeep Iyer</strong></td><td>ECG</td><td>Dr. Mehta</td><td><span class="sp sp-warn">Abnormal</span></td><td><button class="btn btn-xs" onclick="goPage('page-reports');selRep(1,null)">View</button></td></tr>
+                <tr><td><strong>Fatima Malik</strong></td><td>X-Ray</td><td>Dr. Gupta</td><td><span class="sp sp-ok">Normal</span></td><td><button class="btn btn-xs" onclick="goPage('page-reports');selRep(2,null)">View</button></td></tr>
+                <tr><td><strong>Vikram Nair</strong></td><td>Lipid Panel</td><td>Dr. Rahman</td><td><span class="sp sp-warn">Borderline</span></td><td><button class="btn btn-xs" onclick="goPage('page-reports');selRep(3,null)">View</button></td></tr>
+              </table>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">Activity Log</span></div>
+              <div class="act-item"><div class="act-dot" style="background:var(--red)"></div><div><div class="act-text">CBC flagged critical — Ananya Shah</div><div class="act-time">Today 9:16 AM</div></div></div>
+              <div class="act-item"><div class="act-dot" style="background:var(--amber)"></div><div><div class="act-text">ECG anomaly detected — Pradeep Iyer</div><div class="act-time">Today 8:55 AM</div></div></div>
+              <div class="act-item"><div class="act-dot" style="background:var(--green)"></div><div><div class="act-text">Chest X-Ray cleared — Fatima Malik</div><div class="act-time">Today 8:33 AM</div></div></div>
+              <div class="act-item"><div class="act-dot" style="background:var(--blue)"></div><div><div class="act-text">Invoice INV-0040 paid — Vikram Nair</div><div class="act-time">Yesterday 3:10 PM</div></div></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <div class="card">
+              <div class="card-header"><span class="card-title">Doctor Approvals</span><span class="pill pill-amber">2 Pending</span></div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="padding:12px;background:var(--amber-light);border-radius:var(--r-md)" id="da1">
+                  <div style="font-size:13px;font-weight:500">Dr. Kavita Sharma</div>
+                  <div style="font-size:11px;color:var(--muted);margin:3px 0">Neurology · 8 yrs · License MCI-201983</div>
+                  <div style="display:flex;gap:6px;margin-top:8px">
+                    <button class="btn btn-sm btn-primary" onclick="approveDoc('da1',this)">Approve</button>
+                    <button class="btn btn-sm btn-danger">Reject</button>
+                  </div>
+                </div>
+                <div style="padding:12px;background:var(--amber-light);border-radius:var(--r-md)" id="da2">
+                  <div style="font-size:13px;font-weight:500">Dr. Rajan Patel</div>
+                  <div style="font-size:11px;color:var(--muted);margin:3px 0">Oncology · 15 yrs · License MCI-199234</div>
+                  <div style="display:flex;gap:6px;margin-top:8px">
+                    <button class="btn btn-sm btn-primary" onclick="approveDoc('da2',this)">Approve</button>
+                    <button class="btn btn-sm btn-danger">Reject</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">System Health</span></div>
+              <div style="display:flex;flex-direction:column;gap:9px;font-size:13px">
+                <div style="display:flex;justify-content:space-between;align-items:center"><span>AI Engine</span><span class="pill pill-green">Operational</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span>Database</span><span class="pill pill-green">99.9% uptime</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span>API Gateway</span><span class="pill pill-green">Healthy</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span>Backup</span><span class="pill pill-amber">Scheduled 02:00</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center"><span>Storage Used</span><span style="font-weight:500">68% of 2 TB</span></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">Billing Summary</span><button class="btn btn-sm" onclick="goPage('page-billing')">View All</button></div>
+              <div style="font-size:13px;display:flex;flex-direction:column;gap:9px">
+                <div style="display:flex;justify-content:space-between"><span>Today's Collections</span><span style="font-weight:500">₹18,450</span></div>
+                <div style="display:flex;justify-content:space-between"><span>Pending Payments</span><span style="color:var(--red);font-weight:500">₹6,200</span></div>
+                <div style="display:flex;justify-content:space-between"><span>Insurance Claims</span><span style="color:var(--amber);font-weight:500">3 Pending</span></div>
+                <div style="display:flex;justify-content:space-between"><span>Monthly Total</span><span style="font-weight:500">₹4.2L</span></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">AI Analytics</span></div>
+              <div style="font-size:13px;display:flex;flex-direction:column;gap:9px">
+                <div style="display:flex;justify-content:space-between"><span>AI Accuracy</span><span style="font-weight:500;color:var(--green)">96.4%</span></div>
+                <div style="display:flex;justify-content:space-between"><span>Avg Analysis Time</span><span style="font-weight:500">1.4s</span></div>
+                <div style="display:flex;justify-content:space-between"><span>Reports This Month</span><span style="font-weight:500">318</span></div>
+                <div style="display:flex;justify-content:space-between"><span>Critical Flags</span><span style="color:var(--red);font-weight:500">11%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ DOCTOR DASHBOARD ══ -->
+      <div class="page" id="page-doctor-dash">
+        <div class="page-head"><h1>Doctor Dashboard</h1><p>Dr. Arjun Rahman · Hematology &amp; General Medicine</p></div>
+        <div class="metrics">
+          <div class="metric"><div class="metric-label">My Patients Today</div><div class="metric-val">12</div><div class="metric-sub up">3 new referrals</div></div>
+          <div class="metric"><div class="metric-label">Pending Reports</div><div class="metric-val">5</div><div class="metric-sub dn">Needs review</div></div>
+          <div class="metric"><div class="metric-label">Prescriptions Issued</div><div class="metric-val">8</div><div class="metric-sub">Today</div></div>
+          <div class="metric"><div class="metric-label">Appointments Left</div><div class="metric-val">3</div><div class="metric-sub">Today</div></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-header"><span class="card-title">Today's Appointments</span><button class="btn btn-sm btn-primary" onclick="goPage('page-prescriptions')">New Prescription</button></div>
+            <table class="tbl">
+              <tr><th>Time</th><th>Patient</th><th>Reason</th><th>Status</th></tr>
+              <tr><td>09:00</td><td>Ananya Shah</td><td>CBC Follow-up</td><td><span class="sp sp-crit">Urgent</span></td></tr>
+              <tr><td>10:30</td><td>Vikram Nair</td><td>Lipid Review</td><td><span class="sp sp-ok">Done</span></td></tr>
+              <tr><td>12:00</td><td>Deepa Rao</td><td>Thyroid Panel</td><td><span class="sp sp-pend">Upcoming</span></td></tr>
+              <tr><td>14:30</td><td>Rahul Mehta</td><td>General Checkup</td><td><span class="sp sp-pend">Upcoming</span></td></tr>
+              <tr><td>16:00</td><td>Priya Joshi</td><td>Diabetes Review</td><td><span class="sp sp-pend">Upcoming</span></td></tr>
+            </table>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <div class="card">
+              <div class="card-header"><span class="card-title">Critical Alerts</span><span class="pill pill-red">2 Active</span></div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="padding:12px;background:var(--red-light);border-radius:var(--r-md);border-left:3px solid var(--red)">
+                  <div style="font-size:13px;font-weight:500;color:var(--red)">🔴 Ananya Shah — High WBC</div>
+                  <div style="font-size:12px;color:var(--muted);margin-top:3px">WBC 14.2 × 10³/µL · Possible infection</div>
+                  <button class="btn btn-sm" style="margin-top:8px" onclick="goPage('page-reports')">Review CBC →</button>
+                </div>
+                <div style="padding:12px;background:var(--amber-light);border-radius:var(--r-md);border-left:3px solid var(--amber)">
+                  <div style="font-size:13px;font-weight:500;color:var(--amber)">🟡 Pradeep Iyer — ECG Anomaly</div>
+                  <div style="font-size:12px;color:var(--muted);margin-top:3px">ST-segment irregularity noted</div>
+                  <button class="btn btn-sm" style="margin-top:8px" onclick="goPage('page-reports');selRep(1,null)">Review ECG →</button>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">Recent Prescriptions</span><button class="btn btn-sm" onclick="goPage('page-prescriptions')">View All</button></div>
+              <div class="rx-item"><div class="rx-num">Rx</div><div class="rx-info"><div class="rx-name">Ananya Shah</div><div class="rx-detail">Amoxicillin, Ferrous Sulphate · Today</div></div><span class="sp sp-ok">Active</span></div>
+              <div class="rx-item"><div class="rx-num">Rx</div><div class="rx-info"><div class="rx-name">Vikram Nair</div><div class="rx-detail">Atorvastatin 20mg · Yesterday</div></div><span class="sp sp-ok">Active</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PATIENT DASHBOARD ══ -->
+      <div class="page" id="page-patient-dash">
+        <div class="page-head"><h1>My Health Portal</h1><p>Ananya Shah · Patient ID: P-00412</p></div>
+        <div class="metrics">
+          <div class="metric"><div class="metric-label">My Reports</div><div class="metric-val">6</div><div class="metric-sub">Total uploaded</div></div>
+          <div class="metric"><div class="metric-label">Latest Status</div><div class="metric-val" style="font-size:16px;color:var(--red)">Critical</div><div class="metric-sub dn">CBC flagged</div></div>
+          <div class="metric"><div class="metric-label">Next Appointment</div><div class="metric-val" style="font-size:16px">Apr 15</div><div class="metric-sub">Dr. Rahman</div></div>
+          <div class="metric"><div class="metric-label">Pending Bill</div><div class="metric-val" style="font-size:20px">₹2,850</div><div class="metric-sub dn">Due Apr 20</div></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-header"><span class="card-title">My Reports</span><button class="btn btn-sm" onclick="goPage('page-reports')">View All</button></div>
+            <table class="tbl">
+              <tr><th>Report</th><th>Date</th><th>Doctor</th><th>Status</th></tr>
+              <tr><td>Complete Blood Count</td><td>Today</td><td>Dr. Rahman</td><td><span class="sp sp-crit">Critical</span></td></tr>
+              <tr><td>Lipid Panel</td><td>Mar 15</td><td>Dr. Rahman</td><td><span class="sp sp-warn">Borderline</span></td></tr>
+              <tr><td>Thyroid TSH</td><td>Feb 20</td><td>Dr. Gupta</td><td><span class="sp sp-ok">Normal</span></td></tr>
+            </table>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <div class="card">
+              <div class="card-header"><span class="card-title">My Active Prescriptions</span><button class="btn btn-sm" onclick="goPage('page-prescriptions')">View All</button></div>
+              <div class="rx-item"><div class="rx-num">1</div><div class="rx-info"><div class="rx-name">Amoxicillin 500mg</div><div class="rx-detail">Twice daily · 7 days · After meals</div></div></div>
+              <div class="rx-item"><div class="rx-num">2</div><div class="rx-info"><div class="rx-name">Ferrous Sulphate 200mg</div><div class="rx-detail">Once daily · 30 days · With food</div></div></div>
+            </div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">Pending Invoice</span><button class="btn btn-sm btn-primary" onclick="goPage('page-billing')">Pay Now</button></div>
+              <div style="font-size:13px;display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;justify-content:space-between"><span>Invoice INV-0041</span><span style="font-weight:500">₹2,850</span></div>
+                <div style="display:flex;justify-content:space-between"><span>Date</span><span>Apr 11, 2026</span></div>
+                <div style="display:flex;justify-content:space-between"><span>Due</span><span style="color:var(--red)">Apr 20, 2026</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ REPORT VIEWER ══ -->
+      <div class="page" id="page-reports">
+        <div class="page-head"><h1>Report Viewer</h1><p>AI-powered analysis with real-time insights and risk scoring</p></div>
+        <div style="display:grid;grid-template-columns:270px 1fr;gap:1rem">
+          <!-- Left panel -->
+          <div class="card" style="padding:0;overflow:hidden">
+            <div style="padding:10px 1rem;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+              <span class="card-title">All Reports</span>
+              <span class="pill pill-red">14 New</span>
+            </div>
+            <div style="padding:8px;border-bottom:0.5px solid var(--border)">
+              <input type="text" placeholder="Search patient, test..." style="font-size:12px" oninput="filterReps(this.value)">
+            </div>
+            <div id="rep-list" class="scrollable">
+              <div class="rlist-item sel" onclick="selRep(0,this)"><div class="rname">Complete Blood Count</div><div class="rmeta">Ananya Shah · <span style="color:var(--red)">Critical</span></div></div>
+              <div class="rlist-item" onclick="selRep(1,this)"><div class="rname">ECG Analysis</div><div class="rmeta">Pradeep Iyer · <span style="color:var(--amber)">Abnormal</span></div></div>
+              <div class="rlist-item" onclick="selRep(2,this)"><div class="rname">Chest X-Ray</div><div class="rmeta">Fatima Malik · <span style="color:var(--green)">Normal</span></div></div>
+              <div class="rlist-item" onclick="selRep(3,this)"><div class="rname">Lipid Panel</div><div class="rmeta">Vikram Nair · <span style="color:var(--amber)">Borderline</span></div></div>
+              <div class="rlist-item" onclick="selRep(4,this)"><div class="rname">Thyroid Function (TSH)</div><div class="rmeta">Deepa Rao · <span style="color:var(--green)">Normal</span></div></div>
+              <div class="rlist-item" onclick="selRep(5,this)"><div class="rname">Urine Analysis</div><div class="rmeta">Rahul Mehta · <span style="color:var(--green)">Normal</span></div></div>
+            </div>
+          </div>
+          <!-- Detail panel -->
+          <div class="card" style="padding:0;overflow:hidden">
+            <div style="padding:1rem 1.25rem;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start">
+              <div>
+                <div id="rv-title" style="font-size:17px;font-weight:500;font-family:'Instrument Serif',serif;letter-spacing:-0.2px">Complete Blood Count (CBC)</div>
+                <div id="rv-meta" style="font-size:12px;color:var(--muted);margin-top:3px">Ananya Shah, 34F · Lab ID: CBC-20260409-001 · Today, 9:14 AM</div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-sm">Download PDF</button>
+                <button class="btn btn-sm btn-primary">Share</button>
+              </div>
+            </div>
+            <div style="padding:1rem 1.25rem">
+              <div class="ai-panel">
+                <div class="ai-head">
+                  <div class="ai-orb"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14v-4H7l5-8v4h4l-5 8z"/></svg></div>
+                  <span class="ai-lbl">AI Analysis Summary</span>
+                  <span class="sp sp-crit" style="margin-left:auto" id="rv-flag">Critical Finding</span>
+                </div>
+                <div class="ai-body" id="rv-ai">WBC count is significantly elevated at 14.2 × 10³/µL (reference: 4.5–11.0), suggesting possible bacterial infection or inflammatory response. Hemoglobin is mildly low at 10.8 g/dL. Platelet count within normal limits. <strong>Recommend urgent clinical correlation</strong> and possible follow-up with differential count and CRP levels.</div>
+              </div>
+              <!-- Tabs -->
+              <div style="display:flex;border-bottom:0.5px solid var(--border);margin-bottom:1rem">
+                <div class="rvtab active" onclick="switchRvTab(this,'rv-lab')" style="padding:7px 14px;font-size:13px;cursor:pointer;border-bottom:2px solid var(--teal);color:var(--teal);font-weight:500">Lab Results</div>
+                <div class="rvtab" onclick="switchRvTab(this,'rv-vitals')" style="padding:7px 14px;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:var(--muted)">Vitals</div>
+                <div class="rvtab" onclick="switchRvTab(this,'rv-risk')" style="padding:7px 14px;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:var(--muted)">Risk Score</div>
+              </div>
+              <!-- Lab results -->
+              <div id="rv-lab">
+                <table class="tbl" id="rv-table">
+                  <tr><th>Parameter</th><th>Value</th><th>Reference Range</th><th>Status</th></tr>
+                  <tr><td>WBC</td><td style="color:var(--red);font-weight:500">14.2 × 10³/µL ▲</td><td>4.5 – 11.0</td><td><span class="sp sp-crit">High</span></td></tr>
+                  <tr><td>RBC</td><td style="color:var(--amber);font-weight:500">3.9 × 10⁶/µL ▼</td><td>4.2 – 5.4</td><td><span class="sp sp-warn">Low</span></td></tr>
+                  <tr><td>Hemoglobin</td><td style="color:var(--amber);font-weight:500">10.8 g/dL ▼</td><td>12 – 16</td><td><span class="sp sp-warn">Low</span></td></tr>
+                  <tr><td>Hematocrit</td><td style="color:var(--green)">36.5%</td><td>36 – 48</td><td><span class="sp sp-ok">Normal</span></td></tr>
+                  <tr><td>MCV</td><td style="color:var(--green)">88.4 fL</td><td>80 – 100</td><td><span class="sp sp-ok">Normal</span></td></tr>
+                  <tr><td>Platelets</td><td style="color:var(--green)">245 × 10³/µL</td><td>150 – 400</td><td><span class="sp sp-ok">Normal</span></td></tr>
+                </table>
+              </div>
+              <!-- Vitals -->
+              <div id="rv-vitals" style="display:none">
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px">
+                  <div style="background:var(--gray-50);border-radius:var(--r-md);padding:12px;text-align:center"><div style="font-size:22px;font-weight:500">98.6</div><div style="font-size:10px;color:var(--muted)">°F — Temperature</div></div>
+                  <div style="background:var(--red-light);border-radius:var(--r-md);padding:12px;text-align:center"><div style="font-size:22px;font-weight:500;color:var(--red)">142/90</div><div style="font-size:10px;color:var(--muted)">mmHg — BP</div></div>
+                  <div style="background:var(--gray-50);border-radius:var(--r-md);padding:12px;text-align:center"><div style="font-size:22px;font-weight:500">94</div><div style="font-size:10px;color:var(--muted)">bpm — Heart Rate</div></div>
+                  <div style="background:var(--gray-50);border-radius:var(--r-md);padding:12px;text-align:center"><div style="font-size:22px;font-weight:500">97%</div><div style="font-size:10px;color:var(--muted)">SpO2</div></div>
+                  <div style="background:var(--gray-50);border-radius:var(--r-md);padding:12px;text-align:center"><div style="font-size:22px;font-weight:500">18</div><div style="font-size:10px;color:var(--muted)">br/min — Resp. Rate</div></div>
+                  <div style="background:var(--amber-light);border-radius:var(--r-md);padding:12px;text-align:center"><div style="font-size:22px;font-weight:500;color:var(--amber)">68.4</div><div style="font-size:10px;color:var(--muted)">kg — Weight</div></div>
+                </div>
+              </div>
+              <!-- Risk -->
+              <div id="rv-risk" style="display:none">
+                <div style="margin:1rem 0">
+                  <div style="height:10px;border-radius:5px;background:linear-gradient(to right,#EAF3DE,#FAEEDA 50%,#FCEBEB);position:relative;margin-bottom:8px">
+                    <div style="position:absolute;top:-3px;left:72%;width:16px;height:16px;border-radius:50%;background:white;border:2px solid var(--red);transform:translateX(-50%)"></div>
+                  </div>
+                  <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted)"><span>Low Risk</span><span>Moderate</span><span>High Risk</span></div>
+                </div>
+                <p style="font-size:13px;color:var(--muted);line-height:1.7">Risk Score: <strong style="color:var(--red)">72/100 (High)</strong> — Elevated WBC combined with mild anemia and hypertension places this patient in the high-priority category. AI model confidence: 91%.</p>
+              </div>
+            </div>
+            <!-- AI Chat -->
+            <div class="chat-wrap">
+              <div class="chat-msgs" id="chat-msgs">
+                <div class="cmsg cmsg-ai">Ask me anything about this report — values, follow-ups, or clinical concerns.</div>
+              </div>
+              <div class="chat-row">
+                <input type="text" id="chat-inp" placeholder="Ask AI about this report..." style="flex:1;font-size:13px" onkeydown="if(event.key==='Enter')sendChat()">
+                <button class="btn btn-sm btn-primary" onclick="sendChat()">Ask AI ↗</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ UPLOAD REPORT ══ -->
+      <div class="page" id="page-upload">
+        <div class="page-head"><h1>Upload Report</h1><p>Submit medical reports for instant AI-powered analysis and flagging</p></div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-title" style="margin-bottom:1rem">Patient &amp; Report Information</div>
+            <div class="fgrid">
+              <div class="fg"><label>Patient Name</label><select><option>Ananya Shah</option><option>Pradeep Iyer</option><option>Fatima Malik</option><option>Vikram Nair</option><option>Deepa Rao</option></select></div>
+              <div class="fg"><label>Report Type</label><select><option>Complete Blood Count</option><option>Lipid Panel</option><option>Liver Function Test</option><option>ECG / EKG</option><option>Chest X-Ray</option><option>MRI Scan</option><option>CT Scan</option><option>Thyroid Panel</option><option>Urine Analysis</option></select></div>
+              <div class="fg"><label>Department</label><select><option>Hematology</option><option>Cardiology</option><option>Radiology</option><option>Biochemistry</option><option>Endocrinology</option></select></div>
+              <div class="fg"><label>Priority</label><select><option>Routine</option><option>Urgent</option><option>Stat</option></select></div>
+              <div class="fg"><label>Collection Date</label><input type="date" value="2026-04-11"></div>
+              <div class="fg"><label>Referring Doctor</label><select><option>Dr. Arjun Rahman</option><option>Dr. Priya Mehta</option><option>Dr. Suresh Gupta</option></select></div>
+              <div class="fg full"><label>Clinical Notes</label><textarea placeholder="Relevant symptoms, medications, or clinical context..."></textarea></div>
+            </div>
+            <div class="upload-zone" id="upzone" onclick="document.getElementById('up-file').click()">
+              <div class="uz-icon">📄</div>
+              <div class="uz-text">Drag &amp; drop or click to upload</div>
+              <div class="uz-sub">PDF, PNG, JPG, DICOM supported · max 50 MB</div>
+              <input type="file" id="up-file" style="display:none" accept=".pdf,.png,.jpg,.jpeg,.dcm" onchange="handleUpFile(this)">
+            </div>
+            <div id="up-file-info" style="display:none;margin-top:10px;padding:9px 12px;background:var(--gray-50);border-radius:var(--r-md);font-size:13px;display:flex;align-items:center;gap:10px">
+              <span>📎</span><span id="up-fname">file.pdf</span>
+              <button style="margin-left:auto;background:none;border:none;color:var(--red);cursor:pointer;font-size:12px" onclick="clearUpFile()">✕ Remove</button>
+            </div>
+            <div class="form-footer">
+              <button class="btn" onclick="resetUpForm()">Clear</button>
+              <button class="btn btn-primary" id="up-btn" onclick="doUpload()">Analyze with AI ↗</button>
+            </div>
+            <div id="up-result" style="display:none;margin-top:1rem">
+              <div class="ai-panel" style="margin-bottom:0">
+                <div class="ai-head"><div class="ai-orb"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14v-4H7l5-8v4h4l-5 8z"/></svg></div><span class="ai-lbl">Analysis complete · 1.4 seconds</span><span class="sp sp-warn" style="margin-left:auto">Review Needed</span></div>
+                <div class="ai-body">Report processed successfully. Two parameters flagged for clinical review. Follow-up bloodwork recommended in 14 days. No emergency intervention required at this time.</div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom:1rem">Recent Uploads</div>
+            <table class="tbl">
+              <tr><th>Report</th><th>Patient</th><th>Date</th><th>Status</th></tr>
+              <tr><td>CBC</td><td>Ananya Shah</td><td>Today</td><td><span class="sp sp-crit">Critical</span></td></tr>
+              <tr><td>ECG</td><td>Pradeep Iyer</td><td>Today</td><td><span class="sp sp-warn">Abnormal</span></td></tr>
+              <tr><td>X-Ray</td><td>Fatima Malik</td><td>Today</td><td><span class="sp sp-ok">Normal</span></td></tr>
+              <tr><td>Lipid Panel</td><td>Vikram Nair</td><td>Yesterday</td><td><span class="sp sp-warn">Borderline</span></td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PATIENTS ══ -->
+      <div class="page" id="page-patients">
+        <div class="page-head"><h1>Patient Records</h1><p>1,248 registered patients</p></div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+            <input type="text" placeholder="Search name, ID, condition..." style="max-width:280px">
+            <div style="display:flex;gap:8px">
+              <select style="font-size:12px;padding:7px 10px;width:auto"><option>All Status</option><option>Critical</option><option>Abnormal</option><option>Normal</option></select>
+              <button class="btn btn-sm btn-primary" onclick="openModal('patient')">+ Register Patient</button>
+            </div>
+          </div>
+          <table class="tbl">
+            <tr><th>Patient</th><th>Age / Gender</th><th>Last Visit</th><th>Department</th><th>Status</th><th>Actions</th></tr>
+            <tr><td><strong>Ananya Shah</strong><br><span style="font-size:11px;color:var(--muted)">P-00412</span></td><td>34 / Female</td><td>Today</td><td>Hematology</td><td><span class="sp sp-crit">Critical</span></td><td><button class="btn btn-xs" onclick="goPage('page-reports')">Reports</button> <button class="btn btn-xs" onclick="goPage('page-prescriptions')">Rx</button> <button class="btn btn-xs" onclick="goPage('page-billing')">Bill</button></td></tr>
+            <tr><td><strong>Pradeep Iyer</strong><br><span style="font-size:11px;color:var(--muted)">P-00391</span></td><td>58 / Male</td><td>Today</td><td>Cardiology</td><td><span class="sp sp-warn">Abnormal</span></td><td><button class="btn btn-xs" onclick="goPage('page-reports');selRep(1,null)">Reports</button> <button class="btn btn-xs" onclick="goPage('page-billing')">Bill</button></td></tr>
+            <tr><td><strong>Fatima Malik</strong><br><span style="font-size:11px;color:var(--muted)">P-00387</span></td><td>45 / Female</td><td>Today</td><td>Radiology</td><td><span class="sp sp-ok">Normal</span></td><td><button class="btn btn-xs" onclick="goPage('page-reports');selRep(2,null)">Reports</button> <button class="btn btn-xs" onclick="goPage('page-billing')">Bill</button></td></tr>
+            <tr><td><strong>Vikram Nair</strong><br><span style="font-size:11px;color:var(--muted)">P-00380</span></td><td>52 / Male</td><td>Yesterday</td><td>Biochemistry</td><td><span class="sp sp-warn">Borderline</span></td><td><button class="btn btn-xs" onclick="goPage('page-reports');selRep(3,null)">Reports</button> <button class="btn btn-xs" onclick="goPage('page-billing')">Bill</button></td></tr>
+            <tr><td><strong>Deepa Rao</strong><br><span style="font-size:11px;color:var(--muted)">P-00374</span></td><td>38 / Female</td><td>Yesterday</td><td>Endocrinology</td><td><span class="sp sp-ok">Normal</span></td><td><button class="btn btn-xs" onclick="goPage('page-reports');selRep(4,null)">Reports</button> <button class="btn btn-xs" onclick="goPage('page-billing')">Bill</button></td></tr>
+            <tr><td><strong>Rahul Mehta</strong><br><span style="font-size:11px;color:var(--muted)">P-00368</span></td><td>29 / Male</td><td>Apr 8</td><td>General</td><td><span class="sp sp-ok">Normal</span></td><td><button class="btn btn-xs">Reports</button> <button class="btn btn-xs" onclick="goPage('page-billing')">Bill</button></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ DOCTORS ══ -->
+      <div class="page" id="page-doctors">
+        <div class="page-head"><h1>Doctor Management</h1><p>34 active doctors · 2 pending approval</p></div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+            <input type="text" placeholder="Search name, specialization..." style="max-width:280px">
+            <button class="btn btn-sm btn-primary" onclick="openModal('doctor')">+ Register Doctor</button>
+          </div>
+          <table class="tbl">
+            <tr><th>Doctor</th><th>Specialization</th><th>License No.</th><th>Patients Today</th><th>Status</th><th>Actions</th></tr>
+            <tr><td><strong>Dr. Arjun Rahman</strong><br><span style="font-size:11px;color:var(--muted)">D-00012</span></td><td>Hematology</td><td>MCI-104532</td><td>12</td><td><span class="sp sp-ok">Active</span></td><td><button class="btn btn-xs">View Profile</button></td></tr>
+            <tr><td><strong>Dr. Priya Mehta</strong><br><span style="font-size:11px;color:var(--muted)">D-00008</span></td><td>Cardiology</td><td>MCI-098712</td><td>9</td><td><span class="sp sp-ok">Active</span></td><td><button class="btn btn-xs">View Profile</button></td></tr>
+            <tr><td><strong>Dr. Suresh Gupta</strong><br><span style="font-size:11px;color:var(--muted)">D-00005</span></td><td>Radiology</td><td>MCI-076543</td><td>7</td><td><span class="sp sp-ok">Active</span></td><td><button class="btn btn-xs">View Profile</button></td></tr>
+            <tr><td><strong>Dr. Kavita Sharma</strong><br><span style="font-size:11px;color:var(--muted)">D-00036</span></td><td>Neurology</td><td>MCI-201983</td><td>—</td><td><span class="sp sp-warn" id="drs-kavita">Pending</span></td><td><button class="btn btn-xs btn-primary" onclick="approveDocRow('drs-kavita',this)">Approve</button></td></tr>
+            <tr><td><strong>Dr. Rajan Patel</strong><br><span style="font-size:11px;color:var(--muted)">D-00037</span></td><td>Oncology</td><td>MCI-199234</td><td>—</td><td><span class="sp sp-warn" id="drs-rajan">Pending</span></td><td><button class="btn btn-xs btn-primary" onclick="approveDocRow('drs-rajan',this)">Approve</button></td></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ PRESCRIPTIONS ══ -->
+      <div class="page" id="page-prescriptions">
+        <div class="page-head"><h1>Prescriptions</h1><p>Issue, manage, and track patient prescriptions</p></div>
+        <div class="g32">
+          <div class="card">
+            <div class="card-header"><span class="card-title">New Prescription</span></div>
+            <div class="fgrid">
+              <div class="fg"><label>Patient</label><select><option>Ananya Shah (P-00412)</option><option>Pradeep Iyer (P-00391)</option><option>Vikram Nair (P-00380)</option><option>Deepa Rao (P-00374)</option><option>Rahul Mehta (P-00368)</option></select></div>
+              <div class="fg"><label>Prescribing Doctor</label><select><option>Dr. Arjun Rahman</option><option>Dr. Priya Mehta</option><option>Dr. Suresh Gupta</option></select></div>
+              <div class="fg"><label>Diagnosis / Indication</label><input type="text" placeholder="e.g. Bacterial Infection, Anemia"></div>
+              <div class="fg"><label>Prescription Date</label><input type="date" value="2026-04-11"></div>
+            </div>
+            <hr class="section-divider">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <span class="card-title">Medications</span>
+              <button class="btn btn-xs" onclick="addMed()">+ Add Medicine</button>
+            </div>
+            <div id="meds-list">
+              <div class="med-block fgrid" style="margin-bottom:10px">
+                <div class="fg"><label>Medicine Name</label><input type="text" value="Amoxicillin 500mg"></div>
+                <div class="fg"><label>Dosage / Frequency</label><select><option>Once daily</option><option selected>Twice daily</option><option>Thrice daily</option><option>As needed</option></select></div>
+                <div class="fg"><label>Duration</label><input type="text" value="7 days"></div>
+                <div class="fg"><label>Instructions</label><input type="text" value="After meals"></div>
+              </div>
+              <div class="med-block fgrid">
+                <div class="fg"><label>Medicine Name</label><input type="text" value="Ferrous Sulphate 200mg"></div>
+                <div class="fg"><label>Dosage / Frequency</label><select><option selected>Once daily</option><option>Twice daily</option></select></div>
+                <div class="fg"><label>Duration</label><input type="text" value="30 days"></div>
+                <div class="fg"><label>Instructions</label><input type="text" value="With food, 2hr after antibiotics"></div>
+              </div>
+            </div>
+            <div class="fg" style="margin-top:10px"><label>Additional Notes for Patient</label><textarea placeholder="Rest advice, diet restrictions, follow-up instructions, warning signs to watch..."></textarea></div>
+            <div class="fg"><label>Follow-up Date</label><input type="date" value="2026-04-25"></div>
+            <div class="ai-panel" style="margin-top:1rem;margin-bottom:0">
+              <div class="ai-head"><div class="ai-orb"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14v-4H7l5-8v4h4l-5 8z"/></svg></div><span class="ai-lbl">AI Drug Interaction Check</span></div>
+              <div class="ai-body">No significant interactions detected between Amoxicillin and Ferrous Sulphate. Note: Iron supplements may slightly reduce antibiotic absorption — advise patient to take them at least 2 hours apart.</div>
+            </div>
+            <div class="form-footer">
+              <button class="btn">Clear Form</button>
+              <button class="btn btn-sm" onclick="printRx()">Print Rx</button>
+              <button class="btn btn-primary" onclick="issueRx()">Issue Prescription ✓</button>
+            </div>
+            <div id="rx-ok" style="display:none;margin-top:1rem"><div class="alert alert-ok" style="display:block">✅ Prescription issued successfully and sent to patient portal.</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <div class="card">
+              <div class="card-title" style="margin-bottom:1rem">Recent Prescriptions</div>
+              <div class="rx-item">
+                <div class="rx-num">Rx</div>
+                <div class="rx-info"><div class="rx-name">Ananya Shah</div><div class="rx-detail">Amoxicillin + Ferrous Sulphate · Today</div></div>
+                <span class="sp sp-ok">Active</span>
+              </div>
+              <div class="rx-item">
+                <div class="rx-num">Rx</div>
+                <div class="rx-info"><div class="rx-name">Vikram Nair</div><div class="rx-detail">Atorvastatin 20mg · Yesterday</div></div>
+                <span class="sp sp-ok">Active</span>
+              </div>
+              <div class="rx-item">
+                <div class="rx-num">Rx</div>
+                <div class="rx-info"><div class="rx-name">Deepa Rao</div><div class="rx-detail">Levothyroxine 50mcg · Mar 15</div></div>
+                <span class="sp sp-warn">Expiring Soon</span>
+              </div>
+              <div class="rx-item">
+                <div class="rx-num">Rx</div>
+                <div class="rx-info"><div class="rx-name">Rahul Mehta</div><div class="rx-detail">Cetirizine 10mg · Mar 10</div></div>
+                <span class="sp sp-pend">Completed</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title" style="margin-bottom:1rem">AI Clinical Suggestions</div>
+              <div style="font-size:13px;color:var(--muted);line-height:1.8">
+                Based on CBC results for <strong>Ananya Shah</strong>:<br>
+                • Antibiotic therapy for elevated WBC<br>
+                • Iron supplementation for mild anemia<br>
+                • Retest CBC in 14 days<br>
+                • Consider Vitamin B12 and folate panel<br>
+                • Monitor blood pressure (142/90)
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title" style="margin-bottom:1rem">Drug Reference</div>
+              <table class="tbl">
+                <tr><th>Medicine</th><th>Class</th><th>Common Side Effects</th></tr>
+                <tr><td>Amoxicillin</td><td>Antibiotic</td><td>Nausea, rash</td></tr>
+                <tr><td>Ferrous Sulphate</td><td>Iron supplement</td><td>Constipation, dark stools</td></tr>
+                <tr><td>Atorvastatin</td><td>Statin</td><td>Muscle pain, liver enzymes</td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ BILLING ══ -->
+      <div class="page" id="page-billing">
+        <div class="page-head"><h1>Billing &amp; Payments</h1><p>Manage invoices, receipts, and insurance claims</p></div>
+        <div class="metrics">
+          <div class="metric"><div class="metric-label">Today's Collections</div><div class="metric-val">₹18,450</div><div class="metric-sub up">+12% vs yesterday</div></div>
+          <div class="metric"><div class="metric-label">Pending Dues</div><div class="metric-val" style="color:var(--red)">₹6,200</div><div class="metric-sub dn">4 invoices unpaid</div></div>
+          <div class="metric"><div class="metric-label">Monthly Revenue</div><div class="metric-val">₹4.2L</div><div class="metric-sub up">+8% vs March</div></div>
+          <div class="metric"><div class="metric-label">Insurance Claims</div><div class="metric-val">3</div><div class="metric-sub">Pending approval</div></div>
+        </div>
+        <div class="g32">
+          <div>
+            <div class="card">
+              <div class="card-header"><span class="card-title">Generate Invoice</span></div>
+              <div class="fgrid">
+                <div class="fg"><label>Patient</label><select id="bill-patient"><option>Ananya Shah (P-00412)</option><option>Pradeep Iyer (P-00391)</option><option>Vikram Nair (P-00380)</option><option>Fatima Malik (P-00387)</option></select></div>
+                <div class="fg"><label>Invoice Date</label><input type="date" value="2026-04-11"></div>
+                <div class="fg"><label>Consulting Doctor</label><select><option>Dr. Arjun Rahman</option><option>Dr. Priya Mehta</option><option>Dr. Suresh Gupta</option></select></div>
+                <div class="fg"><label>Payment Mode</label><select id="pay-mode"><option>Cash</option><option>UPI</option><option>Credit / Debit Card</option><option>Insurance</option><option>Net Banking</option><option>Cheque</option></select></div>
+              </div>
+              <hr class="section-divider">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                <span class="card-title">Charges Breakdown</span>
+                <button class="btn btn-xs" onclick="addCharge()">+ Add Charge</button>
+              </div>
+              <div id="bill-items">
+                <div class="bill-row"><span>Consultation Fee</span><span style="font-weight:500">₹800</span></div>
+                <div class="bill-row"><span>CBC Test</span><span style="font-weight:500">₹650</span></div>
+                <div class="bill-row"><span>AI Report Analysis</span><span style="font-weight:500">₹400</span></div>
+                <div class="bill-row"><span>Doctor Visit Charges</span><span style="font-weight:500">₹500</span></div>
+                <div class="bill-row"><span>Prescription &amp; Medicines</span><span style="font-weight:500">₹200</span></div>
+              </div>
+              <div style="margin-top:14px;padding-top:10px;border-top:0.5px solid var(--border)">
+                <div class="bill-row" style="font-size:13px;color:var(--muted)"><span>Subtotal</span><span>₹2,550</span></div>
+                <div class="bill-row" style="font-size:13px;color:var(--muted)"><span>GST (18%)</span><span>₹459</span></div>
+                <div class="bill-row" style="font-size:13px;color:var(--green)"><span>Discount Applied</span><span>−₹159</span></div>
+                <div class="bill-total"><span>Total Payable</span><span style="color:var(--teal)">₹2,850</span></div>
+              </div>
+              <div class="fg" style="margin-top:1rem"><label>Notes / Remarks</label><textarea placeholder="Any additional notes for this invoice..."></textarea></div>
+              <div class="form-footer">
+                <button class="btn" onclick="previewPDF()">Preview PDF</button>
+                <button class="btn" onclick="markPaid()">Mark as Paid</button>
+                <button class="btn btn-primary" onclick="generateInvoice()">Generate Invoice ↗</button>
+              </div>
+              <div id="bill-inv-ok" style="display:none;margin-top:1rem"><div class="alert alert-ok" style="display:block">✅ Invoice INV-20260411-042 generated and emailed to patient.</div></div>
+              <div id="bill-paid-ok" style="display:none;margin-top:1rem"><div class="alert alert-ok" id="paid-msg" style="display:block">✅ Payment of ₹2,850 marked as received via Cash.</div></div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:1rem">
+            <div class="card">
+              <div class="card-title" style="margin-bottom:1rem">Recent Invoices</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--gray-50);border-radius:var(--r-md);font-size:13px">
+                  <div><div style="font-weight:500">INV-0041</div><div style="font-size:11px;color:var(--muted)">Ananya Shah · Today</div></div>
+                  <div style="text-align:right"><div style="font-weight:500">₹2,850</div><span class="sp sp-crit">Pending</span></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--gray-50);border-radius:var(--r-md);font-size:13px">
+                  <div><div style="font-weight:500">INV-0040</div><div style="font-size:11px;color:var(--muted)">Vikram Nair · Yesterday</div></div>
+                  <div style="text-align:right"><div style="font-weight:500">₹1,450</div><span class="sp sp-ok">Paid</span></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--gray-50);border-radius:var(--r-md);font-size:13px">
+                  <div><div style="font-weight:500">INV-0039</div><div style="font-size:11px;color:var(--muted)">Fatima Malik · Apr 10</div></div>
+                  <div style="text-align:right"><div style="font-weight:500">₹900</div><span class="sp sp-ok">Paid</span></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--gray-50);border-radius:var(--r-md);font-size:13px">
+                  <div><div style="font-weight:500">INV-0038</div><div style="font-size:11px;color:var(--muted)">Pradeep Iyer · Apr 9</div></div>
+                  <div style="text-align:right"><div style="font-weight:500">₹3,200</div><span class="sp sp-blue">Insurance</span></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--gray-50);border-radius:var(--r-md);font-size:13px">
+                  <div><div style="font-weight:500">INV-0037</div><div style="font-size:11px;color:var(--muted)">Deepa Rao · Apr 8</div></div>
+                  <div style="text-align:right"><div style="font-weight:500">₹1,100</div><span class="sp sp-ok">Paid</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title" style="margin-bottom:1rem">Revenue by Department</div>
+              <div class="bar-chart">
+                <div class="bc-row"><span class="bc-label">Hematology</span><div class="bc-track"><div class="bc-fill" style="width:80%;background:var(--teal)"></div></div><span class="bc-val">₹1.1L</span></div>
+                <div class="bc-row"><span class="bc-label">Cardiology</span><div class="bc-track"><div class="bc-fill" style="width:62%;background:var(--blue)"></div></div><span class="bc-val">₹84K</span></div>
+                <div class="bc-row"><span class="bc-label">Radiology</span><div class="bc-track"><div class="bc-fill" style="width:45%;background:var(--amber)"></div></div><span class="bc-val">₹62K</span></div>
+                <div class="bc-row"><span class="bc-label">OPD / General</span><div class="bc-track"><div class="bc-fill" style="width:30%;background:var(--green)"></div></div><span class="bc-val">₹41K</span></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-title" style="margin-bottom:1rem">Insurance Claims</div>
+              <table class="tbl">
+                <tr><th>Patient</th><th>Amount</th><th>Status</th></tr>
+                <tr><td>Pradeep Iyer</td><td>₹3,200</td><td><span class="sp sp-warn">Processing</span></td></tr>
+                <tr><td>Ananya Shah</td><td>₹1,800</td><td><span class="sp sp-warn">Submitted</span></td></tr>
+                <tr><td>Deepa Rao</td><td>₹950</td><td><span class="sp sp-ok">Approved</span></td></tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ ANALYTICS ══ -->
+      <div class="page" id="page-analytics">
+        <div class="page-head"><h1>AI Analytics</h1><p>Trends, patterns, and predictive insights across all reports</p></div>
+        <div class="metrics">
+          <div class="metric"><div class="metric-label">AI Accuracy</div><div class="metric-val">96.4%</div><div class="metric-sub up">+1.2% this week</div></div>
+          <div class="metric"><div class="metric-label">Correct Flags</div><div class="metric-val">142</div><div class="metric-sub up">Of 147 total flags</div></div>
+          <div class="metric"><div class="metric-label">Avg Confidence</div><div class="metric-val">89%</div><div class="metric-sub">Across all analyses</div></div>
+          <div class="metric"><div class="metric-label">Reports (April)</div><div class="metric-val">318</div><div class="metric-sub up">+22 vs last month</div></div>
+        </div>
+        <div class="g2">
+          <div class="card">
+            <div class="card-title" style="margin-bottom:1rem">Most Common Abnormalities</div>
+            <div class="bar-chart">
+              <div class="bc-row"><span class="bc-label">High WBC</span><div class="bc-track"><div class="bc-fill" style="width:78%;background:var(--red)"></div></div><span class="bc-val">23%</span></div>
+              <div class="bc-row"><span class="bc-label">High LDL</span><div class="bc-track"><div class="bc-fill" style="width:64%;background:var(--amber)"></div></div><span class="bc-val">19%</span></div>
+              <div class="bc-row"><span class="bc-label">Low Hemoglobin</span><div class="bc-track"><div class="bc-fill" style="width:52%;background:var(--blue)"></div></div><span class="bc-val">15%</span></div>
+              <div class="bc-row"><span class="bc-label">High TSH</span><div class="bc-track"><div class="bc-fill" style="width:34%;background:var(--teal)"></div></div><span class="bc-val">10%</span></div>
+              <div class="bc-row"><span class="bc-label">High Creatinine</span><div class="bc-track"><div class="bc-fill" style="width:20%;background:var(--muted)"></div></div><span class="bc-val">6%</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-title" style="margin-bottom:1rem">Status Distribution (This Month)</div>
+            <div style="display:flex;flex-direction:column;gap:14px;margin-top:8px">
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span>Normal</span><span style="color:var(--green);font-weight:500">61%</span></div>
+                <div class="bc-track" style="height:10px"><div class="bc-fill" style="width:61%;background:var(--green)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span>Borderline / Abnormal</span><span style="color:var(--amber);font-weight:500">28%</span></div>
+                <div class="bc-track" style="height:10px"><div class="bc-fill" style="width:28%;background:var(--amber)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px"><span>Critical</span><span style="color:var(--red);font-weight:500">11%</span></div>
+                <div class="bc-track" style="height:10px"><div class="bc-fill" style="width:11%;background:var(--red)"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ ALERTS ══ -->
+      <div class="page" id="page-alerts">
+        <div class="page-head"><h1>Alerts</h1><p>5 active alerts requiring clinical or administrative attention</p></div>
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:0.5px solid var(--border)">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0"></div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:500">🔴 Critical: WBC 14.2 × 10³/µL — Ananya Shah</div><div style="font-size:12px;color:var(--muted)">Today 9:14 AM · Hematology · Possible bacterial infection</div></div>
+            <button class="btn btn-sm" onclick="goPage('page-reports')">Review →</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:0.5px solid var(--border)">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0"></div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:500">🟡 ECG Anomaly — Pradeep Iyer</div><div style="font-size:12px;color:var(--muted)">Today 8:52 AM · Cardiology · ST-segment irregularity</div></div>
+            <button class="btn btn-sm" onclick="goPage('page-reports');selRep(1,null)">Review →</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:0.5px solid var(--border)">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0"></div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:500">🟡 High LDL 138 mg/dL — Vikram Nair</div><div style="font-size:12px;color:var(--muted)">Yesterday · Biochemistry · Above optimal range</div></div>
+            <button class="btn btn-sm" onclick="goPage('page-reports');selRep(3,null)">Review →</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:0.5px solid var(--border)">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--blue);flex-shrink:0"></div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:500">🔵 2 Doctor Approvals Pending</div><div style="font-size:12px;color:var(--muted)">Admin action required · Dr. Kavita Sharma, Dr. Rajan Patel</div></div>
+            <button class="btn btn-sm" onclick="goPage('page-doctors')">Approve →</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:13px 0">
+            <div style="width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0"></div>
+            <div style="flex:1"><div style="font-size:13px;font-weight:500">🔴 ₹6,200 Overdue — 4 Invoices</div><div style="font-size:12px;color:var(--muted)">Finance action required</div></div>
+            <button class="btn btn-sm" onclick="goPage('page-billing')">View Bills →</button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main-content -->
+  </div><!-- /app-body -->
+</div><!-- /s-app -->
+
+<script>
+// ═══════════════════════════════════════════
+// NAVIGATION CONFIGS PER ROLE
+// ═══════════════════════════════════════════
+var NAV = {
+  admin: [
+    { section:'Overview', items:[
+      {icon:'🏥', label:'Dashboard', page:'page-admin-dash'},
+      {icon:'📋', label:'Reports', page:'page-reports', badge:'14'},
+      {icon:'🔔', label:'Alerts', page:'page-alerts', badgeRed:'5'},
+    ]},
+    { section:'Management', items:[
+      {icon:'👥', label:'Patients', page:'page-patients', badgeGray:'1248'},
+      {icon:'👨‍⚕️', label:'Doctors', page:'page-doctors', badgeGray:'34'},
+      {icon:'⬆️', label:'Upload Report', page:'page-upload'},
+    ]},
+    { section:'Finance', items:[
+      {icon:'💳', label:'Billing & Invoices', page:'page-billing'},
+      {icon:'💊', label:'Prescriptions', page:'page-prescriptions'},
+    ]},
+    { section:'Insights', items:[
+      {icon:'📊', label:'AI Analytics', page:'page-analytics'},
+    ]},
+  ],
+  doctor: [
+    { section:'Overview', items:[
+      {icon:'🏥', label:'My Dashboard', page:'page-doctor-dash'},
+      {icon:'📋', label:'Reports', page:'page-reports', badge:'5'},
+      {icon:'🔔', label:'Alerts', page:'page-alerts', badgeRed:'2'},
+    ]},
+    { section:'Clinical', items:[
+      {icon:'👥', label:'My Patients', page:'page-patients'},
+      {icon:'💊', label:'Prescriptions', page:'page-prescriptions'},
+      {icon:'⬆️', label:'Upload Report', page:'page-upload'},
+    ]},
+    { section:'Finance', items:[
+      {icon:'💳', label:'Billing', page:'page-billing'},
+    ]},
+  ],
+  patient: [
+    { section:'My Health', items:[
+      {icon:'🏥', label:'My Dashboard', page:'page-patient-dash'},
+      {icon:'📋', label:'My Reports', page:'page-reports'},
+      {icon:'💊', label:'Prescriptions', page:'page-prescriptions'},
+    ]},
+    { section:'Account', items:[
+      {icon:'💳', label:'Billing & Payments', page:'page-billing'},
+      {icon:'⬆️', label:'Upload Report', page:'page-upload'},
+    ]},
+  ]
+};
+
+var currentRole = 'admin';
+var pStep = 1;
+
+// ═══════════════════════════════════════════
+// LOGIN & LOGOUT
+// ═══════════════════════════════════════════
+function setRole(el, role) {
+  document.querySelectorAll('.rtab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentRole = role;
+}
+
+function doLogin() {
+  var btn = document.getElementById('login-btn');
+  btn.innerHTML = '<span class="spinner"></span> Signing in...';
+  btn.disabled = true;
+  setTimeout(function () {
+    btn.innerHTML = 'Sign In';
+    btn.disabled = false;
+    document.getElementById('s-login').classList.remove('active');
+    document.getElementById('s-app').classList.add('active');
+    var labels = { admin:'Admin', doctor:'Doctor', patient:'Patient' };
+    var avs = { admin:'AD', doctor:'DR', patient:'AS' };
+    document.getElementById('role-badge').textContent = labels[currentRole];
+    document.getElementById('user-avatar').textContent = avs[currentRole];
+    buildNav(currentRole);
+    var dashMap = { admin:'page-admin-dash', doctor:'page-doctor-dash', patient:'page-patient-dash' };
+    goPage(dashMap[currentRole]);
+  }, 1300);
+}
+
+function logout() {
+  document.getElementById('s-app').classList.remove('active');
+  document.getElementById('s-login').classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+// SIDEBAR BUILD
+// ═══════════════════════════════════════════
+function buildNav(role) {
+  var sb = document.getElementById('sidebar');
+  sb.innerHTML = '';
+  NAV[role].forEach(function (group) {
+    var sec = document.createElement('div');
+    sec.className = 'nav-section';
+    sec.textContent = group.section;
+    sb.appendChild(sec);
+    group.items.forEach(function (item) {
+      var n = document.createElement('div');
+      n.className = 'nav-item';
+      n.setAttribute('data-page', item.page);
+      var badge = item.badgeRed
+        ? '<span class="nav-badge">' + item.badgeRed + '</span>'
+        : item.badge ? '<span class="nav-badge" style="background:var(--red-light);color:var(--red)">' + item.badge + '</span>'
+        : item.badgeGray ? '<span class="nav-badge-g">' + item.badgeGray + '</span>'
+        : '';
+      n.innerHTML = '<span class="nav-icon">' + item.icon + '</span>' + item.label + badge;
+      n.onclick = function () { goPage(item.page); };
+      sb.appendChild(n);
+    });
+  });
+}
+
+function goPage(pid) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  var el = document.getElementById(pid);
+  if (el) el.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.toggle('active', n.getAttribute('data-page') === pid);
+  });
+}
+
+// ═══════════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════════
+function openModal(type) {
+  document.getElementById('reg-modal').classList.add('active');
+  document.getElementById('reg-patient').style.display = type === 'patient' ? 'block' : 'none';
+  document.getElementById('reg-doctor').style.display = type === 'doctor' ? 'block' : 'none';
+  document.getElementById('modal-title').textContent = type === 'patient' ? 'Patient Registration' : 'Doctor Registration';
+  resetSteps();
+}
+
+function closeModal() {
+  document.getElementById('reg-modal').classList.remove('active');
+}
+
+document.getElementById('reg-modal').addEventListener('click', function (e) {
+  if (e.target === this) closeModal();
+});
+
+// ═══════════════════════════════════════════
+// PATIENT REG STEPS
+// ═══════════════════════════════════════════
+function resetSteps() {
+  pStep = 1;
+  ['rp-s1','rp-s2','rp-s3'].forEach(function(id,i){
+    document.getElementById(id).style.display = i === 0 ? 'block' : 'none';
+  });
+  document.getElementById('ps1').className = 'step done';
+  document.getElementById('pl1').className = 'step-line done';
+  document.getElementById('ps2').className = 'step current';
+  document.getElementById('pl2').className = 'step-line';
+  document.getElementById('ps3').className = 'step';
+}
+
+function pNext(from) {
+  document.getElementById('rp-s' + from).style.display = 'none';
+  var to = from + 1;
+  document.getElementById('rp-s' + to).style.display = 'block';
+  pStep = to;
+  if (to === 2) {
+    document.getElementById('ps1').className = 'step done';
+    document.getElementById('pl1').className = 'step-line done';
+    document.getElementById('ps2').className = 'step current';
+  } else if (to === 3) {
+    document.getElementById('ps2').className = 'step done';
+    document.getElementById('pl2').className = 'step-line done';
+    document.getElementById('ps3').className = 'step current';
+  }
+}
+
+function pPrev(from) {
+  document.getElementById('rp-s' + from).style.display = 'none';
+  var to = from - 1;
+  document.getElementById('rp-s' + to).style.display = 'block';
+  pStep = to;
+  if (to === 2) {
+    document.getElementById('ps3').className = 'step';
+    document.getElementById('pl2').className = 'step-line';
+  } else if (to === 1) {
+    document.getElementById('ps2').className = 'step';
+    document.getElementById('pl1').className = 'step-line';
+  }
+}
+
+function submitPatient() {
+  document.getElementById('p-reg-ok').style.display = 'block';
+  setTimeout(closeModal, 2000);
+}
+
+function submitDoctor() {
+  document.getElementById('d-reg-ok').style.display = 'block';
+  setTimeout(closeModal, 2000);
+}
+
+// ═══════════════════════════════════════════
+// REPORT VIEWER
+// ═══════════════════════════════════════════
+var repData = [
+  {
+    title: 'Complete Blood Count (CBC)',
+    meta: 'Ananya Shah, 34F · Lab ID: CBC-20260409-001 · Today, 9:14 AM',
+    ai: 'WBC count significantly elevated at 14.2 × 10³/µL (ref: 4.5–11.0), suggesting possible bacterial infection or inflammatory response. Hemoglobin mildly low at 10.8 g/dL. Platelet count within normal limits. <strong>Urgent clinical correlation recommended.</strong>',
+    flag: 'Critical Finding', fcls: 'sp-crit',
+    table: '<tr><th>Parameter</th><th>Value</th><th>Reference</th><th>Status</th></tr><tr><td>WBC</td><td style="color:var(--red);font-weight:500">14.2 × 10³/µL ▲</td><td>4.5–11.0</td><td><span class="sp sp-crit">High</span></td></tr><tr><td>Hemoglobin</td><td style="color:var(--amber);font-weight:500">10.8 g/dL ▼</td><td>12–16</td><td><span class="sp sp-warn">Low</span></td></tr><tr><td>Platelets</td><td style="color:var(--green)">245 × 10³/µL</td><td>150–400</td><td><span class="sp sp-ok">Normal</span></td></tr>'
+  },
+  {
+    title: 'ECG Analysis — Lead II Recording',
+    meta: 'Pradeep Iyer, 58M · Lab ID: ECG-20260409-002 · Today, 8:52 AM',
+    ai: 'ST-segment elevation noted in leads V2–V4. QRS duration borderline at 118 ms. Heart rate 88 bpm. Pattern consistent with possible early ischemic changes. <strong>Cardiology consultation recommended immediately.</strong>',
+    flag: 'Urgent Review', fcls: 'sp-crit',
+    table: '<tr><th>Parameter</th><th>Value</th><th>Reference</th><th>Status</th></tr><tr><td>Heart Rate</td><td style="color:var(--amber);font-weight:500">88 bpm</td><td>60–100</td><td><span class="sp sp-ok">Normal</span></td></tr><tr><td>QRS Duration</td><td style="color:var(--amber);font-weight:500">118 ms ▲</td><td>&lt;120 ms</td><td><span class="sp sp-warn">Borderline</span></td></tr><tr><td>ST Segment</td><td style="color:var(--red);font-weight:500">Elevated ▲</td><td>Isoelectric</td><td><span class="sp sp-crit">Abnormal</span></td></tr>'
+  },
+  {
+    title: 'Chest X-Ray — PA View',
+    meta: 'Fatima Malik, 45F · Lab ID: XR-20260409-003 · Today, 8:30 AM',
+    ai: 'Lung fields appear clear bilaterally. No consolidation, pleural effusion, or pneumothorax identified. Cardiac silhouette normal in size. Bony thorax intact. <strong>No acute cardiopulmonary findings.</strong>',
+    flag: 'Normal', fcls: 'sp-ok',
+    table: '<tr><th>Finding</th><th>Observation</th><th>Status</th></tr><tr><td>Lung Fields</td><td>Clear bilaterally</td><td><span class="sp sp-ok">Normal</span></td></tr><tr><td>Cardiac Silhouette</td><td>Normal size</td><td><span class="sp sp-ok">Normal</span></td></tr><tr><td>Pleural Space</td><td>No effusion</td><td><span class="sp sp-ok">Normal</span></td></tr>'
+  },
+  {
+    title: 'Lipid Panel',
+    meta: 'Vikram Nair, 52M · Lab ID: LIP-20260408-001 · Yesterday',
+    ai: 'Total Cholesterol 214 mg/dL (borderline high). LDL 138 mg/dL above optimal. HDL 52 mg/dL within normal limits. Triglycerides 118 mg/dL normal. <strong>Dietary modifications and 3-month follow-up recommended.</strong>',
+    flag: 'Borderline', fcls: 'sp-warn',
+    table: '<tr><th>Parameter</th><th>Value</th><th>Reference</th><th>Status</th></tr><tr><td>Total Cholesterol</td><td style="color:var(--amber);font-weight:500">214 mg/dL ▲</td><td>&lt;200</td><td><span class="sp sp-warn">Borderline</span></td></tr><tr><td>LDL</td><td style="color:var(--amber);font-weight:500">138 mg/dL ▲</td><td>&lt;100 (optimal)</td><td><span class="sp sp-warn">Above Optimal</span></td></tr><tr><td>HDL</td><td style="color:var(--green)">52 mg/dL</td><td>&gt;40</td><td><span class="sp sp-ok">Normal</span></td></tr><tr><td>Triglycerides</td><td style="color:var(--green)">118 mg/dL</td><td>&lt;150</td><td><span class="sp sp-ok">Normal</span></td></tr>'
+  },
+  {
+    title: 'Thyroid Function Tests (TSH, T3, T4)',
+    meta: 'Deepa Rao, 38F · Lab ID: TH-20260408-002 · Yesterday',
+    ai: 'TSH 2.1 mIU/L within normal range. Free T4 and Free T3 within normal limits. Thyroid function is within normal limits. <strong>No intervention required.</strong> Annual follow-up advised.',
+    flag: 'Normal', fcls: 'sp-ok',
+    table: '<tr><th>Parameter</th><th>Value</th><th>Reference</th><th>Status</th></tr><tr><td>TSH</td><td style="color:var(--green)">2.1 mIU/L</td><td>0.4–4.0</td><td><span class="sp sp-ok">Normal</span></td></tr><tr><td>Free T4</td><td style="color:var(--green)">1.1 ng/dL</td><td>0.8–1.8</td><td><span class="sp sp-ok">Normal</span></td></tr><tr><td>Free T3</td><td style="color:var(--green)">3.2 pg/mL</td><td>2.3–4.2</td><td><span class="sp sp-ok">Normal</span></td></tr>'
+  },
+  {
+    title: 'Urine Analysis (Routine)',
+    meta: 'Rahul Mehta, 29M · Lab ID: UR-20260408-003 · Apr 8',
+    ai: 'Color: pale yellow. Clarity: clear. pH 6.0. Protein: negative. Glucose: negative. Trace ketones noted — may indicate mild dehydration. WBC and RBC within normal range. <strong>No significant abnormalities detected.</strong>',
+    flag: 'Normal', fcls: 'sp-ok',
+    table: '<tr><th>Parameter</th><th>Value</th><th>Status</th></tr><tr><td>Protein</td><td style="color:var(--green)">Negative</td><td><span class="sp sp-ok">Normal</span></td></tr><tr><td>Glucose</td><td style="color:var(--green)">Negative</td><td><span class="sp sp-ok">Normal</span></td></tr><tr><td>Ketones</td><td style="color:var(--amber)">Trace</td><td><span class="sp sp-warn">Trace</span></td></tr><tr><td>WBC</td><td style="color:var(--green)">2–4 /hpf</td><td><span class="sp sp-ok">Normal</span></td></tr>'
+  }
+];
+
+function selRep(i, el) {
+  document.querySelectorAll('.rlist-item').forEach(r => r.classList.remove('sel'));
+  if (el) el.classList.add('sel');
+  else { var items = document.querySelectorAll('.rlist-item'); if(items[i]) items[i].classList.add('sel'); }
+  var r = repData[i];
+  document.getElementById('rv-title').textContent = r.title;
+  document.getElementById('rv-meta').textContent = r.meta;
+  document.getElementById('rv-ai').innerHTML = r.ai;
+  var f = document.getElementById('rv-flag');
+  f.textContent = r.flag; f.className = 'sp ' + r.fcls;
+  document.getElementById('rv-table').innerHTML = r.table;
+  document.getElementById('chat-msgs').innerHTML = '<div class="cmsg cmsg-ai">Ask me anything about this report — values, follow-ups, or clinical concerns.</div>';
+  switchRvTab(document.querySelector('.rvtab'), 'rv-lab');
+}
+
+function switchRvTab(el, tabId) {
+  document.querySelectorAll('.rvtab').forEach(t => {
+    t.style.borderBottomColor = 'transparent';
+    t.style.color = 'var(--muted)';
+    t.style.fontWeight = '400';
+    t.classList.remove('active');
+  });
+  el.style.borderBottomColor = 'var(--teal)';
+  el.style.color = 'var(--teal)';
+  el.style.fontWeight = '500';
+  el.classList.add('active');
+  ['rv-lab','rv-vitals','rv-risk'].forEach(id => {
+    var e = document.getElementById(id);
+    if (e) e.style.display = id === tabId ? 'block' : 'none';
+  });
+}
+
+function filterReps(val) {
+  document.querySelectorAll('.rlist-item').forEach(item => {
+    item.style.display = item.textContent.toLowerCase().includes(val.toLowerCase()) ? '' : 'none';
+  });
+}
+
+// ═══════════════════════════════════════════
+// AI CHAT
+// ═══════════════════════════════════════════
+var aiBank = {
+  'wbc': 'WBC at 14.2 × 10³/µL is elevated beyond normal range of 4.5–11.0. This often indicates bacterial infection, stress response, or inflammatory condition. Urgent clinical follow-up is recommended.',
+  'hemoglobin': 'Hemoglobin at 10.8 g/dL is mildly below the female reference of 12–16 g/dL, suggesting mild anemia. Iron studies and peripheral smear would help identify the cause.',
+  'platelet': 'Platelet count of 245 × 10³/µL is within the normal range of 150–400. No clotting concerns from this value alone.',
+  'ldl': 'LDL at 138 mg/dL is above the optimal threshold of <100 mg/dL. This increases cardiovascular risk. Dietary modification is the first step; statin therapy may be considered if lifestyle changes are insufficient.',
+  'follow': 'Recommended follow-up: differential WBC count, CRP, and ESR to confirm inflammatory or infectious aetiology. Blood cultures if infection is suspected. Repeat CBC in 14 days.',
+  'risk': 'The AI risk score of 72/100 (High) is based on elevated WBC, mild anemia, and hypertension. The model confidence is 91%. This patient should be prioritised for clinical review.',
+  'default': 'Based on this report, the primary concern is the elevated WBC combined with mild anemia. I recommend correlating with clinical symptoms and considering blood cultures if infection is suspected. Would you like a follow-up plan or referral template?'
+};
+
+function sendChat() {
+  var inp = document.getElementById('chat-inp');
+  var msg = inp.value.trim();
+  if (!msg) return;
+  var msgs = document.getElementById('chat-msgs');
+  msgs.innerHTML += '<div class="cmsg cmsg-user">' + msg + '</div>';
+  msgs.innerHTML += '<div class="cmsg cmsg-ai" id="typing-msg" style="opacity:0.5">AI is analysing...</div>';
+  inp.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+  setTimeout(function () {
+    var typing = document.getElementById('typing-msg');
+    if (typing) typing.remove();
+    var lower = msg.toLowerCase();
+    var reply = aiBank.default;
+    if (lower.includes('wbc') || lower.includes('white blood')) reply = aiBank.wbc;
+    else if (lower.includes('hemoglobin') || lower.includes('hgb') || lower.includes('anemia')) reply = aiBank.hemoglobin;
+    else if (lower.includes('platelet')) reply = aiBank.platelet;
+    else if (lower.includes('ldl') || lower.includes('cholesterol')) reply = aiBank.ldl;
+    else if (lower.includes('follow') || lower.includes('next') || lower.includes('recommend')) reply = aiBank.follow;
+    else if (lower.includes('risk') || lower.includes('score')) reply = aiBank.risk;
+    msgs.innerHTML += '<div class="cmsg cmsg-ai">' + reply + '</div>';
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 1200);
+}
+
+// ═══════════════════════════════════════════
+// UPLOAD
+// ═══════════════════════════════════════════
+function handleUpFile(input) {
+  if (input.files[0]) {
+    var fi = document.getElementById('up-file-info');
+    fi.style.display = 'flex';
+    document.getElementById('up-fname').textContent = input.files[0].name;
+  }
+}
+
+function clearUpFile() {
+  document.getElementById('up-file').value = '';
+  document.getElementById('up-file-info').style.display = 'none';
+}
+
+function resetUpForm() {
+  document.querySelectorAll('#page-upload input,#page-upload select,#page-upload textarea').forEach(el => {
+    if (el.type === 'file') el.value = '';
+    else if (el.tagName === 'SELECT') el.selectedIndex = 0;
+    else el.value = '';
+  });
+  clearUpFile();
+  document.getElementById('up-result').style.display = 'none';
+}
+
+function doUpload() {
+  var btn = document.getElementById('up-btn');
+  btn.innerHTML = '<span class="spinner"></span> Analysing...';
+  btn.disabled = true;
+  setTimeout(function () {
+    btn.innerHTML = 'Analyse with AI ↗';
+    btn.disabled = false;
+    document.getElementById('up-result').style.display = 'block';
+    document.getElementById('up-result').scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }, 2200);
+}
+
+// ═══════════════════════════════════════════
+// PRESCRIPTION
+// ═══════════════════════════════════════════
+function addMed() {
+  var ml = document.getElementById('meds-list');
+  var d = document.createElement('div');
+  d.className = 'med-block fgrid';
+  d.style.marginBottom = '10px';
+  d.innerHTML = '<div class="fg"><label>Medicine Name</label><input type="text" placeholder="e.g. Paracetamol 500mg"></div>' +
+    '<div class="fg"><label>Dosage / Frequency</label><select><option>Once daily</option><option>Twice daily</option><option>Thrice daily</option><option>As needed</option></select></div>' +
+    '<div class="fg"><label>Duration</label><input type="text" placeholder="e.g. 5 days"></div>' +
+    '<div class="fg"><label>Instructions</label><input type="text" placeholder="e.g. Before meals"></div>';
+  ml.appendChild(d);
+}
+
+function issueRx() {
+  document.getElementById('rx-ok').style.display = 'block';
+  setTimeout(function () { document.getElementById('rx-ok').style.display = 'none'; }, 4000);
+}
+
+function printRx() { alert('Opening print preview for prescription...'); }
+
+// ═══════════════════════════════════════════
+// BILLING
+// ═══════════════════════════════════════════
+function addCharge() {
+  var bi = document.getElementById('bill-items');
+  var d = document.createElement('div');
+  d.className = 'bill-row';
+  d.innerHTML = '<span><input type="text" placeholder="Service / charge name" style="width:180px;font-size:12px;padding:5px 8px"></span>' +
+    '<span><input type="text" placeholder="₹0" style="width:80px;font-size:12px;padding:5px 8px;text-align:right"></span>';
+  bi.appendChild(d);
+}
+
+function generateInvoice() {
+  document.getElementById('bill-inv-ok').style.display = 'block';
+  document.getElementById('bill-paid-ok').style.display = 'none';
+  setTimeout(function () { document.getElementById('bill-inv-ok').style.display = 'none'; }, 5000);
+}
+
+function markPaid() {
+  var mode = document.getElementById('pay-mode').value;
+  document.getElementById('paid-msg').textContent = '✅ Payment of ₹2,850 marked as received via ' + mode + '.';
+  document.getElementById('bill-paid-ok').style.display = 'block';
+  document.getElementById('bill-inv-ok').style.display = 'none';
+  setTimeout(function () { document.getElementById('bill-paid-ok').style.display = 'none'; }, 5000);
+}
+
+function previewPDF() { alert('Opening PDF preview for Invoice INV-20260411-042...'); }
+
+// ═══════════════════════════════════════════
+// DOCTOR APPROVALS
+// ═══════════════════════════════════════════
+function approveDoc(id, btn) {
+  var el = document.getElementById(id);
+  el.style.background = 'var(--green-light)';
+  btn.textContent = '✓ Approved';
+  btn.disabled = true;
+}
+
+function approveDocRow(spId, btn) {
+  var sp = document.getElementById(spId);
+  sp.className = 'sp sp-ok';
+  sp.textContent = 'Active';
+  btn.textContent = '✓ Approved';
+  btn.disabled = true;
+}
+
+// ═══════════════════════════════════════════
+// UPLOAD ZONE DRAG & DROP
+// ═══════════════════════════════════════════
+var uz = document.getElementById('upzone');
+if (uz) {
+  uz.addEventListener('dragover', function (e) { e.preventDefault(); this.style.borderColor = 'var(--teal-mid)'; });
+  uz.addEventListener('dragleave', function () { this.style.borderColor = ''; });
+  uz.addEventListener('drop', function (e) {
+    e.preventDefault();
+    this.style.borderColor = '';
+    var file = e.dataTransfer.files[0];
+    if (file) {
+      document.getElementById('up-file-info').style.display = 'flex';
+      document.getElementById('up-fname').textContent = file.name;
+    }
+  });
+}
+</script>
+</body>
+</html>
